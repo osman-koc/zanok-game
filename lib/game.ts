@@ -1,0 +1,78 @@
+import { Word, WheelSegment, RoundModifiers } from '../types';
+
+export const WHEEL_SEGMENTS: WheelSegment[] = [
+  { id: '1', label: 'Kelime', type: 'word', color: '#FF6B6B', icon: '📝' },
+  { id: '2', label: 'İpucu', type: 'hint', color: '#4ECDC4', icon: '💡' },
+  { id: '3', label: 'Çift Puan', type: 'double', color: '#45B7D1', icon: '⭐' },
+  { id: '4', label: '+1 Can', type: 'life', color: '#96CEB4', icon: '❤️' },
+  { id: '5', label: 'Boş', type: 'empty', color: '#FFEAA7', icon: '😐' },
+  { id: '6', label: 'Kelime', type: 'word', color: '#DDA0DD', icon: '📝' },
+  { id: '7', label: 'İpucu', type: 'hint', color: '#98D8C8', icon: '💡' },
+  { id: '8', label: 'Çift Puan', type: 'double', color: '#F7DC6F', icon: '⭐' },
+];
+
+export function getRandomWord(words: Word[], lastWordId?: string): Word | null {
+  if (words.length === 0) return null;
+  
+  let availableWords = words;
+  if (lastWordId && words.length > 1) {
+    availableWords = words.filter(word => word.id !== lastWordId);
+  }
+  
+  const randomIndex = Math.floor(Math.random() * availableWords.length);
+  return availableWords[randomIndex];
+}
+
+export function spinWheel(): WheelSegment {
+  const randomIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+  return WHEEL_SEGMENTS[randomIndex];
+}
+
+export function createRoundModifiers(segment: WheelSegment): RoundModifiers {
+  return {
+    hasHint: segment.type === 'hint',
+    hasDoubleScore: segment.type === 'double',
+    hasExtraLife: segment.type === 'life',
+  };
+}
+
+export function calculateScore(
+  correct: boolean,
+  modifiers: RoundModifiers,
+  hintUsed: boolean
+): number {
+  if (!correct) return 0;
+  
+  let score = 1;
+  
+  if (modifiers.hasDoubleScore) {
+    score *= 2;
+  }
+  
+  if (hintUsed) {
+    score = Math.max(1, Math.floor(score * 0.5));
+  }
+  
+  return score;
+}
+
+export function getInitialLives(modifiers: RoundModifiers): number {
+  return modifiers.hasExtraLife ? 7 : 6;
+}
+
+export function getHintText(meaning: string): string {
+  if (meaning.length === 0) return '';
+  
+  // For short words (≤3 chars), show first letter
+  if (meaning.length <= 3) {
+    return `${meaning[0]}...`;
+  }
+  
+  // For medium words (4-6 chars), show first 2 letters
+  if (meaning.length <= 6) {
+    return `${meaning.substring(0, 2)}...`;
+  }
+  
+  // For long words (>6 chars), show first 3 letters
+  return `${meaning.substring(0, 3)}...`;
+}
