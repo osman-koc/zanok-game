@@ -26,8 +26,8 @@ export default function Logo({ size = 'medium' }: LogoProps) {
   return (
     <Image
       source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/l0dihm3bx7ajij5deddqc' }}
-      style={[styles.container, currentSize.container]}
-      resizeMode="contain"
+      style={[styles.container, currentSize.container, styles.oval]}
+      resizeMode="cover"
     />
   );
 }
@@ -35,5 +35,9 @@ export default function Logo({ size = 'medium' }: LogoProps) {
 const styles = StyleSheet.create({
   container: {
     // No background styling - transparent logo
+  },
+  oval: {
+    borderRadius: 1000, // Large value to create oval/circular shape
+    overflow: 'hidden',
   },
 });
