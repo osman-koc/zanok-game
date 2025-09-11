@@ -25,7 +25,7 @@ export default function Logo({ size = 'medium' }: LogoProps) {
 
   return (
     <Image
-      source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gnqf9z7vecuts2dsnyxf4' }}
+      source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/l0dihm3bx7ajij5deddqc' }}
       style={[styles.container, currentSize.container]}
       resizeMode="contain"
     />
