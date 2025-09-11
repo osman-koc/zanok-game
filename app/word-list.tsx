@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Edit3, Trash2, Plus, Search, ArrowLeft } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Word } from '@/types';
 import { getWords, updateWord, deleteWord } from '@/lib/storage';
-import { strings } from '@/lib/i18n';
-import Logo from '@/components/Logo';
 
 export default function WordListScreen() {
   const insets = useSafeAreaInsets();
@@ -30,6 +28,12 @@ export default function WordListScreen() {
   useEffect(() => {
     loadWords();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadWords();
+    }, [])
+  );
 
   const loadWords = async () => {
     const loadedWords = await getWords();
@@ -120,7 +124,6 @@ export default function WordListScreen() {
             <ArrowLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Logo size="small" />
             <Text style={styles.title}>Kelime Listesi</Text>
           </View>
           <TouchableOpacity
@@ -236,9 +239,9 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerCenter: {
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 20,

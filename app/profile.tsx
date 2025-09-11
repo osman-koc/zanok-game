@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Trophy, Target, Flame, BookOpen, Award, ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { getDailyStats, getWords, getTotalStats } from '@/lib/storage';
-import Logo from '@/components/Logo';
+
 
 interface ProfileStats {
   totalWords: number;
@@ -127,9 +127,7 @@ export default function ProfileScreen() {
               <ArrowLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
             <View style={styles.headerCenter}>
-              <Logo size="medium" />
               <Text style={styles.title}>Profilim</Text>
-              <Text style={styles.subtitle}>İstatistiklerin ve başarıların</Text>
             </View>
             <View style={styles.placeholder} />
           </View>
@@ -237,7 +235,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -248,20 +246,17 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerCenter: {
+    flex: 1,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
   placeholder: {
     width: 40,
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#FFFFFF',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
   },
   content: {
     flex: 1,
