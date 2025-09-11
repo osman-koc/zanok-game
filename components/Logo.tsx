@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image, StyleSheet } from 'react-native';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
@@ -25,24 +24,17 @@ export default function Logo({ size = 'medium' }: LogoProps) {
   const currentSize = sizeStyles[size];
 
   return (
-    <LinearGradient
-      colors={['#F59E0B', '#F97316', '#EF4444']}
+    <Image
+      source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gnqf9z7vecuts2dsnyxf4' }}
       style={[styles.container, currentSize.container]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
-      <Text style={[styles.text, { fontSize: currentSize.text.fontSize }]}>
-        Z
-      </Text>
-    </LinearGradient>
+      resizeMode="contain"
+    />
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -51,12 +43,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
-  },
-  text: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
   },
 });

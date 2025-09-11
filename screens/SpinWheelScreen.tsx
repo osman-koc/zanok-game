@@ -80,7 +80,6 @@ export default function SpinWheelScreen() {
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Logo size="small" />
-          <Text style={styles.appName}>Zanok</Text>
         </View>
         <View style={styles.menuButtons}>
           <TouchableOpacity
@@ -154,9 +153,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   logoContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
   },
   menuButtons: {
     flexDirection: 'row',
@@ -173,14 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
+
   content: {
     flex: 1,
     paddingHorizontal: 20,
