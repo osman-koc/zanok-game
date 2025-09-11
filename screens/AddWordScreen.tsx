@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import { strings } from '../lib/i18n';
 import { addWord } from '../lib/storage';
 
@@ -48,11 +49,19 @@ export default function AddWordScreen() {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
+              <ArrowLeft size={24} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{strings.addWordTitle}</Text>
+            <View style={styles.headerSpacer} />
+          </View>
+        </SafeAreaView>
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.content}
         >
-          <Text style={styles.title}>{strings.addWordTitle}</Text>
           
           <View style={styles.form}>
             <View style={styles.inputGroup}>
@@ -116,10 +125,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  safeArea: {
+    zIndex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  headerSpacer: {
+    width: 40,
+  },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 100,
+    paddingTop: 20,
     paddingBottom: 40,
   },
   title: {
