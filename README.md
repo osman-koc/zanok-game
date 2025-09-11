@@ -1,2 +1,2 @@
-# zanok-game
-Created by Rork
+# Zanok - Mobile Game
+Word addition and guessing game.
