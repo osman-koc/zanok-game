@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Türkçe Kelime Oyunu - Zanok",
-    "slug": "turkce-kelime-oyunu-zanok",
+    "name": "Zanok - Türkçe kelime oyunu",
+    "slug": "zanok-game",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.turkce-kelime-oyunu-zanok",
+      "bundleIdentifier": "com.osmankoc.zanok",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.turkce-kelime-oyunu-zanok",
+      "package": "com.osmankoc.zanok",
       "permissions": [
         "RECORD_AUDIO"
       ]
