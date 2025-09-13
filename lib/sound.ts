@@ -37,7 +37,7 @@ class SoundManager {
 
       this.wrongSound = new Audio.Sound();
       await this.wrongSound.loadAsync({
-        uri: 'https://www.soundjay.com/misc/sounds/fail-buzzer-02.wav',
+        uri: 'https://www.soundjay.com/misc/sounds/pop-up-03.wav',
       }, { shouldPlay: false, volume: 0.2 });
 
       this.spinSound = new Audio.Sound();
