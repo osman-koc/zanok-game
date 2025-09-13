@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import SpinWheel from '../components/SpinWheel';
 import StatsBadge from '../components/StatsBadge';
@@ -25,9 +25,16 @@ export default function SpinWheelScreen() {
     initializeSound();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
   const initializeSound = async () => {
     await soundManager.initialize();
-    await soundManager.playBackgroundMusic();
+    // Background music disabled to avoid notification-like sounds
+    // await soundManager.playBackgroundMusic();
   };
 
   const loadData = async () => {

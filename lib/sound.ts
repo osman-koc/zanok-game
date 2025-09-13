@@ -21,29 +21,29 @@ class SoundManager {
         playThroughEarpieceAndroid: false,
       });
 
-      // Load background music (using a simple tone generator URL)
-      if (Platform.OS !== 'web') {
-        this.backgroundMusic = new Audio.Sound();
-        await this.backgroundMusic.loadAsync({
-          uri: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-        }, { shouldPlay: false, isLooping: true, volume: 0.3 });
-      }
+      // Disable background music for now to avoid notification-like sounds
+      // if (Platform.OS !== 'web') {
+      //   this.backgroundMusic = new Audio.Sound();
+      //   await this.backgroundMusic.loadAsync({
+      //     uri: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+      //   }, { shouldPlay: false, isLooping: true, volume: 0.1 });
+      // }
 
-      // Load sound effects
+      // Load sound effects with simple, pleasant sounds
       this.correctSound = new Audio.Sound();
       await this.correctSound.loadAsync({
         uri: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-      }, { shouldPlay: false, volume: 0.7 });
+      }, { shouldPlay: false, volume: 0.3 });
 
       this.wrongSound = new Audio.Sound();
       await this.wrongSound.loadAsync({
         uri: 'https://www.soundjay.com/misc/sounds/fail-buzzer-02.wav',
-      }, { shouldPlay: false, volume: 0.7 });
+      }, { shouldPlay: false, volume: 0.2 });
 
       this.spinSound = new Audio.Sound();
       await this.spinSound.loadAsync({
         uri: 'https://www.soundjay.com/misc/sounds/click-03.wav',
-      }, { shouldPlay: false, volume: 0.5 });
+      }, { shouldPlay: false, volume: 0.2 });
 
       this.isInitialized = true;
     } catch (error) {
