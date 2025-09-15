@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { Lightbulb, ArrowLeft, X } from 'lucide-react-native';
 import Hangman from '../components/Hangman';
 import AnimatedFeedback from '../components/AnimatedFeedback';
@@ -13,23 +13,22 @@ import { soundManager } from '../lib/sound';
 import { useGameSession } from '../lib/gameSession';
 
 export default function GuessScreen() {
-  const params = useLocalSearchParams();
-  const { currentRound, updateRound, completeRound, session } = useGameSession();
+  const { currentRound, updateRound, completeRound, session, startSingleRound } = useGameSession();
   const [userInput, setUserInput] = useState('');
   const [gameEnded, setGameEnded] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
   const [showHintModal, setShowHintModal] = useState(false);
   const [hintText, setHintText] = useState('');
   
-  const isSessionMode = params.sessionMode === 'true';
+  // Check if we're in session mode by checking if session exists and has multiple rounds or is ongoing
+  const isSessionMode = session && (session.rounds.length > 1 || session.isActive);
   
   useEffect(() => {
-    if (!isSessionMode) {
-      loadData();
-    } else {
-      loadStats();
+    if (!currentRound && !isSessionMode) {
+      // Start a single round for non-session mode
+      startSingleRound();
     }
-  }, [isSessionMode]);
+  }, [currentRound, isSessionMode, startSingleRound]);
   
   useEffect(() => {
     if (!currentRound && isSessionMode) {
@@ -37,7 +36,7 @@ export default function GuessScreen() {
     }
   }, [currentRound, isSessionMode]);
   
-  if (!currentRound && isSessionMode) {
+  if (!currentRound) {
     return null;
   }
   
@@ -47,13 +46,7 @@ export default function GuessScreen() {
   const hintUsed = currentRound?.hintUsed || false;
   const maxLives = getInitialLives(modifiers);
 
-  const loadData = async () => {
-    // Load data for non-session mode if needed
-  };
-  
-  const loadStats = async () => {
-    // Load stats for session mode if needed
-  };
+
 
   const handleCheck = async () => {
     if (!word || gameEnded || !userInput.trim() || !currentRound) return;
