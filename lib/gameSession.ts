@@ -121,7 +121,3 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
   }), [session, currentRound, isComplete, words, startNewSession, startNewSessionWithRound, startSingleRound, addRound, updateRound, completeRound, endSession, loadWords]);
 });
 
-export function useCurrentGameRound() {
-  const { currentRound } = useGameSession();
-  return currentRound;
-}

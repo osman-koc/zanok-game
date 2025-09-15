@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Lightbulb, ArrowLeft, X } from 'lucide-react-native';
 import Hangman from '../components/Hangman';
 import AnimatedFeedback from '../components/AnimatedFeedback';
@@ -13,22 +13,28 @@ import { soundManager } from '../lib/sound';
 import { useGameSession } from '../lib/gameSession';
 
 export default function GuessScreen() {
-  const { currentRound, updateRound, completeRound, session, startSingleRound } = useGameSession();
+  const params = useLocalSearchParams();
+  const { currentRound, updateRound, completeRound, session, startSingleRound, addRound } = useGameSession();
   const [userInput, setUserInput] = useState('');
   const [gameEnded, setGameEnded] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
   const [showHintModal, setShowHintModal] = useState(false);
   const [hintText, setHintText] = useState('');
+  const isNavigatingRef = useRef(false);
   
-  // Check if we're in session mode by checking if session exists and has multiple rounds or is ongoing
-  const isSessionMode = session && (session.rounds.length > 1 || session.isActive);
+  // Check if we're in session mode
+  const isSessionMode = params.sessionMode === 'true';
+  const continueSession = params.continueSession === 'true';
   
   useEffect(() => {
-    if (!currentRound && !isSessionMode) {
+    if (continueSession && !currentRound) {
+      // Add a new round when continuing session
+      addRound();
+    } else if (!isSessionMode && !currentRound) {
       // Start a single round for non-session mode
       startSingleRound();
     }
-  }, [currentRound, isSessionMode, startSingleRound]);
+  }, []);
   
 
   
@@ -45,7 +51,7 @@ export default function GuessScreen() {
 
 
   const handleCheck = async () => {
-    if (!word || gameEnded || !userInput.trim() || !currentRound) return;
+    if (!word || gameEnded || !userInput.trim() || !currentRound || isNavigatingRef.current) return;
 
     Keyboard.dismiss();
     
@@ -57,18 +63,26 @@ export default function GuessScreen() {
       await updateStats(true);
       setGameEnded(true);
       
+      setFeedback({
+        type: 'success',
+        message: '✅ Doğru! Tebrikler!',
+      });
+      
+      // Complete the round immediately
+      if (isSessionMode) {
+        completeRound(score);
+      }
+      
+      // Navigate after a delay
+      isNavigatingRef.current = true;
       setTimeout(() => {
         if (isSessionMode) {
-          completeRound(score);
-          // Use a small delay to ensure state is updated
-          setTimeout(() => {
-            router.replace({
-              pathname: '/result',
-              params: {
-                sessionMode: 'true',
-              },
-            });
-          }, 100);
+          router.replace({
+            pathname: '/result',
+            params: {
+              sessionMode: 'true',
+            },
+          });
         } else {
           router.replace({
             pathname: '/result',
@@ -81,11 +95,6 @@ export default function GuessScreen() {
           });
         }
       }, 1500);
-      
-      setFeedback({
-        type: 'success',
-        message: '✅ Doğru! Tebrikler!',
-      });
     } else {
       const newLivesRemaining = currentRound.livesRemaining - 1;
       updateRound({ livesRemaining: newLivesRemaining });
@@ -96,26 +105,26 @@ export default function GuessScreen() {
         await updateStats(false);
         setGameEnded(true);
         
-        if (isSessionMode) {
-          completeRound(0);
-        }
-        
         setFeedback({
           type: 'error',
           message: formatString(strings.wrongAnswer, { answer: word.meaning }),
         });
         
+        // Complete the round immediately
+        if (isSessionMode) {
+          completeRound(0);
+        }
+        
+        // Navigate after a delay
+        isNavigatingRef.current = true;
         setTimeout(() => {
           if (isSessionMode) {
-            // Use a small delay to ensure state is updated
-            setTimeout(() => {
-              router.replace({
-                pathname: '/result',
-                params: {
-                  sessionMode: 'true',
-                },
-              });
-            }, 100);
+            router.replace({
+              pathname: '/result',
+              params: {
+                sessionMode: 'true',
+              },
+            });
           } else {
             router.replace({
               pathname: '/result',

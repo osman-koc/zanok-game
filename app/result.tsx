@@ -54,7 +54,7 @@ export default function ResultScreen() {
   const handleContinue = () => {
     if (isSessionMode && !isComplete) {
       // Navigate to guess screen, new round will be added there
-      router.push({
+      router.replace({
         pathname: '/guess',
         params: { 
           sessionMode: 'true',
@@ -63,7 +63,7 @@ export default function ResultScreen() {
       });
     } else {
       // Non-session mode: start a new random word
-      router.push({
+      router.replace({
         pathname: '/guess',
         params: { sessionMode: 'false' }
       });
