@@ -14,7 +14,7 @@ import { useGameSession } from '../lib/gameSession';
 import { WheelSegment, DailyStats } from '../types';
 
 export default function SpinWheelScreen() {
-  const { session, words, startNewSession, addRound, loadWords } = useGameSession();
+  const { session, words, startNewSessionWithRound, addRound, loadWords } = useGameSession();
   const [stats, setStats] = useState<DailyStats>({ date: '', correct: 0, wrong: 0, streak: 0 });
   const [isSpinning, setIsSpinning] = useState(false);
 
@@ -59,12 +59,13 @@ export default function SpinWheelScreen() {
   const handleSpinComplete = (segment: WheelSegment) => {
     setIsSpinning(false);
     
+    let roundData;
     if (!session) {
-      const newSession = startNewSession();
-      if (!newSession) return;
+      roundData = startNewSessionWithRound();
+    } else {
+      roundData = addRound();
     }
     
-    const roundData = addRound();
     if (!roundData) return;
 
     router.push({

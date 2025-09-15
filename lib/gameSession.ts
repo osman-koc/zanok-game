@@ -35,6 +35,22 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
     return newSession;
   }, [words]);
 
+  const startNewSessionWithRound = useCallback(() => {
+    if (words.length === 0) return null;
+    
+    const newSession = createGameSession(words);
+    const word = getRandomWord(words, []);
+    if (!word) return null;
+    
+    const segment = spinWheel();
+    const modifiers = createRoundModifiers(segment);
+    
+    const sessionWithRound = addRoundToSession(newSession, word, modifiers);
+    setSession(sessionWithRound);
+    
+    return { session: sessionWithRound, word, modifiers, segment };
+  }, [words]);
+
   const addRound = useCallback(() => {
     if (!session || words.length === 0) return null;
     
@@ -78,12 +94,13 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
     isComplete,
     words,
     startNewSession,
+    startNewSessionWithRound,
     addRound,
     updateRound,
     completeRound,
     endSession,
     loadWords,
-  }), [session, currentRound, isComplete, words, startNewSession, addRound, updateRound, completeRound, endSession, loadWords]);
+  }), [session, currentRound, isComplete, words, startNewSession, startNewSessionWithRound, addRound, updateRound, completeRound, endSession, loadWords]);
 });
 
 export function useCurrentGameRound() {
