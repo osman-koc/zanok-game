@@ -57,14 +57,20 @@ export default function GuessScreen() {
       await updateStats(true);
       setGameEnded(true);
       
-      if (isSessionMode) {
-        completeRound(score);
-        setTimeout(() => {
-          router.push('/result');
-        }, 1500);
-      } else {
-        setTimeout(() => {
-          router.push({
+      setTimeout(() => {
+        if (isSessionMode) {
+          completeRound(score);
+          // Use a small delay to ensure state is updated
+          setTimeout(() => {
+            router.replace({
+              pathname: '/result',
+              params: {
+                sessionMode: 'true',
+              },
+            });
+          }, 100);
+        } else {
+          router.replace({
             pathname: '/result',
             params: {
               won: 'true',
@@ -73,8 +79,8 @@ export default function GuessScreen() {
               meaning: word.meaning,
             },
           });
-        }, 1500);
-      }
+        }
+      }, 1500);
       
       setFeedback({
         type: 'success',
@@ -101,9 +107,17 @@ export default function GuessScreen() {
         
         setTimeout(() => {
           if (isSessionMode) {
-            router.push('/result');
+            // Use a small delay to ensure state is updated
+            setTimeout(() => {
+              router.replace({
+                pathname: '/result',
+                params: {
+                  sessionMode: 'true',
+                },
+              });
+            }, 100);
           } else {
-            router.push({
+            router.replace({
               pathname: '/result',
               params: {
                 won: 'false',
@@ -113,7 +127,7 @@ export default function GuessScreen() {
               },
             });
           }
-        }, 3000);
+        }, 2000);
       } else {
         setFeedback({
           type: 'error',
