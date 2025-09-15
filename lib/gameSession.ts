@@ -125,21 +125,3 @@ export function useCurrentGameRound() {
   const { currentRound } = useGameSession();
   return currentRound;
 }
-
-export function useGameSessionActions() {
-  const { 
-    startNewSession, 
-    addRound, 
-    updateRound, 
-    completeRound, 
-    endSession 
-  } = useGameSession();
-  
-  return {
-    startNewSession,
-    addRound,
-    updateRound,
-    completeRound,
-    endSession,
-  };
-}
