@@ -14,7 +14,7 @@ import { useGameSession } from '../lib/gameSession';
 
 export default function GuessScreen() {
   const params = useLocalSearchParams();
-  const { currentRound, updateRound, completeRound, session } = useGameSession();
+  const { currentRound, updateRound, completeRound, session, startSingleRound } = useGameSession();
   const [userInput, setUserInput] = useState('');
   const [gameEnded, setGameEnded] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
@@ -24,12 +24,11 @@ export default function GuessScreen() {
   const isSessionMode = params.sessionMode === 'true';
   
   useEffect(() => {
-    if (!isSessionMode) {
-      loadData();
-    } else {
-      loadStats();
+    if (!isSessionMode && !currentRound) {
+      // Start a single round for non-session mode
+      startSingleRound();
     }
-  }, [isSessionMode]);
+  }, [isSessionMode, currentRound, startSingleRound]);
   
   useEffect(() => {
     if (!currentRound && isSessionMode) {
@@ -47,13 +46,7 @@ export default function GuessScreen() {
   const hintUsed = currentRound?.hintUsed || false;
   const maxLives = getInitialLives(modifiers);
 
-  const loadData = async () => {
-    // Load data for non-session mode if needed
-  };
-  
-  const loadStats = async () => {
-    // Load stats for session mode if needed
-  };
+
 
   const handleCheck = async () => {
     if (!word || gameEnded || !userInput.trim() || !currentRound) return;
@@ -70,6 +63,21 @@ export default function GuessScreen() {
       
       if (isSessionMode) {
         completeRound(score);
+        setTimeout(() => {
+          router.push('/result');
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          router.push({
+            pathname: '/result',
+            params: {
+              won: 'true',
+              score: score.toString(),
+              word: word.term,
+              meaning: word.meaning,
+            },
+          });
+        }, 1500);
       }
       
       setFeedback({
@@ -109,7 +117,7 @@ export default function GuessScreen() {
               },
             });
           }
-        }, 3000);
+        }, 2000);
       } else {
         setFeedback({
           type: 'error',

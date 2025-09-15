@@ -51,6 +51,23 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
     return { session: sessionWithRound, word, modifiers, segment };
   }, [words]);
 
+  const startSingleRound = useCallback(() => {
+    if (words.length === 0) return null;
+    
+    // Create a temporary session for single round play
+    const tempSession = createGameSession(words);
+    const word = getRandomWord(words, []);
+    if (!word) return null;
+    
+    // Use default modifiers for single round
+    const modifiers = { hasHint: false, hasDoubleScore: false, hasExtraLife: false };
+    
+    const sessionWithRound = addRoundToSession(tempSession, word, modifiers);
+    setSession(sessionWithRound);
+    
+    return { word, modifiers };
+  }, [words]);
+
   const addRound = useCallback(() => {
     if (!session || words.length === 0) return null;
     
@@ -95,12 +112,13 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
     words,
     startNewSession,
     startNewSessionWithRound,
+    startSingleRound,
     addRound,
     updateRound,
     completeRound,
     endSession,
     loadWords,
-  }), [session, currentRound, isComplete, words, startNewSession, startNewSessionWithRound, addRound, updateRound, completeRound, endSession, loadWords]);
+  }), [session, currentRound, isComplete, words, startNewSession, startNewSessionWithRound, startSingleRound, addRound, updateRound, completeRound, endSession, loadWords]);
 });
 
 export function useCurrentGameRound() {

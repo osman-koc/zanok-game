@@ -2,12 +2,15 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { strings } from '../lib/i18n';
+
 import { useGameSession } from '../lib/gameSession';
 
 export default function ResultScreen() {
   const params = useLocalSearchParams();
   const { session, isComplete, addRound, endSession } = useGameSession();
+  
+  // Check if we're in session mode
+  const isSessionMode = session && session.isActive;
   
   // Legacy mode (single game)
   const won = params.won === 'true';
@@ -16,12 +19,11 @@ export default function ResultScreen() {
   const meaning = params.meaning as string;
   
   // Session mode
-  const isSessionMode = session && session.isActive;
   const currentRound = session?.rounds[session.currentRoundIndex - 1];
-  const sessionWon = (currentRound?.score ?? 0) > 0;
-  const sessionScore = currentRound?.score ?? 0;
-  const sessionWord = currentRound?.word.term;
-  const sessionMeaning = currentRound?.word.meaning;
+  const sessionWon = isSessionMode ? (currentRound?.score ?? 0) > 0 : won;
+  const sessionScore = isSessionMode ? (currentRound?.score ?? 0) : score;
+  const sessionWord = isSessionMode ? currentRound?.word.term : word;
+  const sessionMeaning = isSessionMode ? currentRound?.word.meaning : meaning;
   const totalScore = session?.totalScore || 0;
   const roundNumber = session?.currentRoundIndex || 1;
 
@@ -29,11 +31,20 @@ export default function ResultScreen() {
     if (isSessionMode && !isComplete) {
       const roundData = addRound();
       if (roundData) {
-        router.push('/guess');
+        router.push({
+          pathname: '/guess',
+          params: { sessionMode: 'true' }
+        });
       } else {
         endSession();
         router.push('/');
       }
+    } else {
+      // Non-session mode: start a new random word
+      router.push({
+        pathname: '/guess',
+        params: { sessionMode: 'false' }
+      });
     }
   };
 
@@ -44,20 +55,13 @@ export default function ResultScreen() {
     router.push('/');
   };
 
-  const handlePlayAgain = () => {
-    router.push('/');
-  };
-
-  const handleAddWords = () => {
-    router.push('/add-word');
-  };
 
   return (
     <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
       <View style={styles.content}>
         <View style={styles.resultCard}>
           <View style={styles.stars}>
-            {won && (
+            {sessionWon && (
               <>
                 <Text style={styles.star}>⭐</Text>
                 <Text style={styles.star}>⭐</Text>
@@ -67,16 +71,16 @@ export default function ResultScreen() {
           </View>
           
           <Text style={styles.resultTitle}>
-            {isSessionMode ? (sessionWon ? 'Doğru!' : 'Yanlış!') : (won ? strings.youWon : strings.youLost)}
+            {sessionWon ? 'Doğru!' : 'Yanlış!'}
           </Text>
           
           <Text style={styles.congratulations}>
-            {isSessionMode ? `Round ${roundNumber} Tamamlandı` : (won ? strings.congratulations : strings.tryAgain)}
+            {isSessionMode ? `Round ${roundNumber} Tamamlandı` : (sessionWon ? 'Tebrikler!' : 'Tekrar Dene!')}
           </Text>
           
-          {(isSessionMode ? sessionScore > 0 : score > 0) && (
+          {sessionScore > 0 && (
             <View style={styles.scoreContainer}>
-              <Text style={styles.scoreText}>Bu Round: {isSessionMode ? sessionScore : score}</Text>
+              <Text style={styles.scoreText}>{isSessionMode ? `Bu Round: ${sessionScore}` : `Puan: ${sessionScore}`}</Text>
             </View>
           )}
           
@@ -88,42 +92,24 @@ export default function ResultScreen() {
           
           <View style={styles.wordInfo}>
             <Text style={styles.wordLabel}>Kelime:</Text>
-            <Text style={styles.wordValue}>{isSessionMode ? sessionWord : word}</Text>
+            <Text style={styles.wordValue}>{sessionWord}</Text>
             <Text style={styles.meaningLabel}>Anlamı:</Text>
-            <Text style={styles.meaningValue}>{isSessionMode ? sessionMeaning : meaning}</Text>
+            <Text style={styles.meaningValue}>{sessionMeaning}</Text>
           </View>
         </View>
 
         <View style={styles.buttons}>
-          {isSessionMode && !isComplete ? (
-            <>
-              <TouchableOpacity style={styles.button} onPress={handleContinue}>
-                <LinearGradient colors={['#4CAF50', '#45a049']} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>Devam Et</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleContinue}>
+            <LinearGradient colors={['#4CAF50', '#45a049']} style={styles.buttonGradient}>
+              <Text style={styles.buttonText}>Devam Et</Text>
+            </LinearGradient>
+          </TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={handleBackToWheel}>
-                <LinearGradient colors={['#FF9800', '#F57C00']} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>Çarka Dön</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity style={styles.button} onPress={handlePlayAgain}>
-                <LinearGradient colors={['#4CAF50', '#45a049']} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>{isSessionMode ? 'Yeni Oyun' : strings.playAgain}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.button} onPress={handleAddWords}>
-                <LinearGradient colors={['#2196F3', '#1976D2']} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>{strings.addWords}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </>
-          )}
+          <TouchableOpacity style={styles.button} onPress={handleBackToWheel}>
+            <LinearGradient colors={['#FF9800', '#F57C00']} style={styles.buttonGradient}>
+              <Text style={styles.buttonText}>Çarka Dön</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </View>
     </LinearGradient>
