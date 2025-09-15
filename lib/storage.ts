@@ -200,3 +200,6 @@ export async function deleteWord(id: string): Promise<void> {
     console.error('Error deleting word:', error);
   }
 }
+
+// Alias for addWord to match the import in add-word.tsx
+export const addCustomWord = addWord;
