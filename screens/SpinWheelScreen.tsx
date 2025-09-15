@@ -14,7 +14,7 @@ import { useGameSession } from '../lib/gameSession';
 import { WheelSegment, DailyStats } from '../types';
 
 export default function SpinWheelScreen() {
-  const { session, words, startNewSession, addRound } = useGameSession();
+  const { session, words, startNewSession, addRound, loadWords } = useGameSession();
   const [stats, setStats] = useState<DailyStats>({ date: '', correct: 0, wrong: 0, streak: 0 });
   const [isSpinning, setIsSpinning] = useState(false);
 
@@ -27,7 +27,8 @@ export default function SpinWheelScreen() {
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [])
+      loadWords();
+    }, [loadWords])
   );
 
   const initializeSound = async () => {
