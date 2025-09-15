@@ -31,8 +31,13 @@ export default function GuessScreen() {
     }
   }, [isSessionMode]);
   
+  useEffect(() => {
+    if (!currentRound && isSessionMode) {
+      router.push('/');
+    }
+  }, [currentRound, isSessionMode]);
+  
   if (!currentRound && isSessionMode) {
-    router.push('/');
     return null;
   }
   
