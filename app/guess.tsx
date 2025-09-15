@@ -70,6 +70,21 @@ export default function GuessScreen() {
       
       if (isSessionMode) {
         completeRound(score);
+        setTimeout(() => {
+          router.push('/result');
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          router.push({
+            pathname: '/result',
+            params: {
+              won: 'true',
+              score: score.toString(),
+              word: word.term,
+              meaning: word.meaning,
+            },
+          });
+        }, 1500);
       }
       
       setFeedback({
