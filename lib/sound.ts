@@ -29,21 +29,48 @@ class SoundManager {
       //   }, { shouldPlay: false, isLooping: true, volume: 0.1 });
       // }
 
-      // Load sound effects with simple, pleasant sounds
-      this.correctSound = new Audio.Sound();
-      await this.correctSound.loadAsync({
-        uri: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-      }, { shouldPlay: false, volume: 0.3 });
+      // Load sound effects with reliable sounds
+      if (Platform.OS !== 'web') {
+        const correctSoundUri = 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg';
+        const wrongSoundUri = 'https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg';
+        const spinSoundUri = 'https://actions.google.com/sounds/v1/cartoon/pop.ogg';
 
-      this.wrongSound = new Audio.Sound();
-      await this.wrongSound.loadAsync({
-        uri: 'https://www.soundjay.com/misc/sounds/pop-up-03.wav',
-      }, { shouldPlay: false, volume: 0.2 });
+        if (correctSoundUri && correctSoundUri.trim() !== '') {
+          try {
+            this.correctSound = new Audio.Sound();
+            await this.correctSound.loadAsync({
+              uri: correctSoundUri,
+            }, { shouldPlay: false, volume: 0.3 });
+          } catch (error) {
+            console.log('Failed to load correct sound:', error);
+            this.correctSound = null;
+          }
+        }
 
-      this.spinSound = new Audio.Sound();
-      await this.spinSound.loadAsync({
-        uri: 'https://www.soundjay.com/misc/sounds/click-03.wav',
-      }, { shouldPlay: false, volume: 0.2 });
+        if (wrongSoundUri && wrongSoundUri.trim() !== '') {
+          try {
+            this.wrongSound = new Audio.Sound();
+            await this.wrongSound.loadAsync({
+              uri: wrongSoundUri,
+            }, { shouldPlay: false, volume: 0.2 });
+          } catch (error) {
+            console.log('Failed to load wrong sound:', error);
+            this.wrongSound = null;
+          }
+        }
+
+        if (spinSoundUri && spinSoundUri.trim() !== '') {
+          try {
+            this.spinSound = new Audio.Sound();
+            await this.spinSound.loadAsync({
+              uri: spinSoundUri,
+            }, { shouldPlay: false, volume: 0.2 });
+          } catch (error) {
+            console.log('Failed to load spin sound:', error);
+            this.spinSound = null;
+          }
+        }
+      }
 
       this.isInitialized = true;
     } catch (error) {
@@ -80,10 +107,13 @@ class SoundManager {
 
   async playCorrectSound() {
     const settings = await getSettings();
-    if (!settings.soundEnabled || !this.correctSound) return;
+    if (!settings.soundEnabled || !this.correctSound || Platform.OS === 'web') return;
 
     try {
-      await this.correctSound.replayAsync();
+      const status = await this.correctSound.getStatusAsync();
+      if (status.isLoaded) {
+        await this.correctSound.replayAsync();
+      }
     } catch (error) {
       console.log('Correct sound play failed:', error);
     }
@@ -91,10 +121,13 @@ class SoundManager {
 
   async playWrongSound() {
     const settings = await getSettings();
-    if (!settings.soundEnabled || !this.wrongSound) return;
+    if (!settings.soundEnabled || !this.wrongSound || Platform.OS === 'web') return;
 
     try {
-      await this.wrongSound.replayAsync();
+      const status = await this.wrongSound.getStatusAsync();
+      if (status.isLoaded) {
+        await this.wrongSound.replayAsync();
+      }
     } catch (error) {
       console.log('Wrong sound play failed:', error);
     }
@@ -102,10 +135,13 @@ class SoundManager {
 
   async playSpinSound() {
     const settings = await getSettings();
-    if (!settings.soundEnabled || !this.spinSound) return;
+    if (!settings.soundEnabled || !this.spinSound || Platform.OS === 'web') return;
 
     try {
-      await this.spinSound.replayAsync();
+      const status = await this.spinSound.getStatusAsync();
+      if (status.isLoaded) {
+        await this.spinSound.replayAsync();
+      }
     } catch (error) {
       console.log('Spin sound play failed:', error);
     }
