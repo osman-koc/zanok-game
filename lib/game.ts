@@ -1,4 +1,4 @@
-import { Word, WheelSegment, RoundModifiers } from '../types';
+import { Word, WheelSegment, RoundModifiers, GameSession, GameRound } from '../types';
 
 export const WHEEL_SEGMENTS: WheelSegment[] = [
   { id: '1', label: 'Kelime', type: 'word', color: '#FF6B6B', icon: '📝' },
@@ -11,12 +11,16 @@ export const WHEEL_SEGMENTS: WheelSegment[] = [
   { id: '8', label: 'Çift Puan', type: 'double', color: '#F7DC6F', icon: '⭐' },
 ];
 
-export function getRandomWord(words: Word[], lastWordId?: string): Word | null {
+export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word | null {
   if (words.length === 0) return null;
   
   let availableWords = words;
-  if (lastWordId && words.length > 1) {
-    availableWords = words.filter(word => word.id !== lastWordId);
+  if (usedWordIds.length > 0 && words.length > usedWordIds.length) {
+    availableWords = words.filter(word => !usedWordIds.includes(word.id));
+  }
+  
+  if (availableWords.length === 0) {
+    availableWords = words;
   }
   
   const randomIndex = Math.floor(Math.random() * availableWords.length);
@@ -75,4 +79,64 @@ export function getHintText(meaning: string): string {
   
   // For long words (>6 chars), show first 3 letters
   return `${meaning.substring(0, 3)}...`;
+}
+
+export function createGameSession(words: Word[]): GameSession {
+  return {
+    rounds: [],
+    currentRoundIndex: 0,
+    totalScore: 0,
+    isActive: true,
+    startedAt: Date.now(),
+  };
+}
+
+export function addRoundToSession(session: GameSession, word: Word, modifiers: RoundModifiers): GameSession {
+  const newRound: GameRound = {
+    word,
+    modifiers,
+    livesRemaining: getInitialLives(modifiers),
+    hintUsed: false,
+    score: 0,
+  };
+  
+  return {
+    ...session,
+    rounds: [...session.rounds, newRound],
+  };
+}
+
+export function updateCurrentRound(session: GameSession, updates: Partial<GameRound>): GameSession {
+  const updatedRounds = [...session.rounds];
+  const currentRound = updatedRounds[session.currentRoundIndex];
+  
+  if (currentRound) {
+    updatedRounds[session.currentRoundIndex] = {
+      ...currentRound,
+      ...updates,
+    };
+  }
+  
+  return {
+    ...session,
+    rounds: updatedRounds,
+  };
+}
+
+export function completeCurrentRound(session: GameSession, score: number): GameSession {
+  const updatedSession = updateCurrentRound(session, { score });
+  
+  return {
+    ...updatedSession,
+    totalScore: updatedSession.totalScore + score,
+    currentRoundIndex: updatedSession.currentRoundIndex + 1,
+  };
+}
+
+export function getCurrentRound(session: GameSession): GameRound | null {
+  return session.rounds[session.currentRoundIndex] || null;
+}
+
+export function isSessionComplete(session: GameSession): boolean {
+  return session.currentRoundIndex >= session.rounds.length;
 }

@@ -8,17 +8,16 @@ import StatsBadge from '../components/StatsBadge';
 import Logo from '../components/Logo';
 
 import { strings } from '../lib/i18n';
-import { getWords, getDailyStats } from '../lib/storage';
-import { spinWheel, getRandomWord, createRoundModifiers } from '../lib/game';
+import { getDailyStats } from '../lib/storage';
 import { soundManager } from '../lib/sound';
-import { Word, WheelSegment, DailyStats } from '../types';
+import { useGameSession } from '../lib/gameSession';
+import { WheelSegment, DailyStats } from '../types';
 
 export default function SpinWheelScreen() {
-  const [words, setWords] = useState<Word[]>([]);
+  const { session, words, startNewSession, addRound } = useGameSession();
   const [stats, setStats] = useState<DailyStats>({ date: '', correct: 0, wrong: 0, streak: 0 });
   const [isSpinning, setIsSpinning] = useState(false);
-  const [selectedSegment, setSelectedSegment] = useState<WheelSegment | undefined>(undefined);
-  const [lastWordId, setLastWordId] = useState<string>();
+
 
   useEffect(() => {
     loadData();
@@ -38,11 +37,7 @@ export default function SpinWheelScreen() {
   };
 
   const loadData = async () => {
-    const [wordsData, statsData] = await Promise.all([
-      getWords(),
-      getDailyStats(),
-    ]);
-    setWords(wordsData);
+    const statsData = await getDailyStats();
     setStats(statsData);
   };
 
@@ -57,27 +52,24 @@ export default function SpinWheelScreen() {
     if (isSpinning) return;
 
     await soundManager.playSpinSound();
-    const segment = spinWheel();
-    setSelectedSegment(segment);
     setIsSpinning(true);
   };
 
   const handleSpinComplete = (segment: WheelSegment) => {
     setIsSpinning(false);
     
-    const word = getRandomWord(words, lastWordId);
-    if (!word) return;
-
-    setLastWordId(word.id);
-    const modifiers = createRoundModifiers(segment);
+    if (!session) {
+      const newSession = startNewSession();
+      if (!newSession) return;
+    }
+    
+    const roundData = addRound();
+    if (!roundData) return;
 
     router.push({
       pathname: '/guess',
       params: {
-        wordId: word.id,
-        hasHint: modifiers.hasHint.toString(),
-        hasDoubleScore: modifiers.hasDoubleScore.toString(),
-        hasExtraLife: modifiers.hasExtraLife.toString(),
+        sessionMode: 'true',
       },
     });
   };
@@ -113,7 +105,6 @@ export default function SpinWheelScreen() {
           <SpinWheel
             isSpinning={isSpinning}
             onSpinComplete={handleSpinComplete}
-            selectedSegment={selectedSegment}
           />
           <StatsBadge stats={stats} inline={true} />
         </View>

@@ -6,54 +6,52 @@ import { Lightbulb, ArrowLeft, X } from 'lucide-react-native';
 import Hangman from '../components/Hangman';
 import AnimatedFeedback from '../components/AnimatedFeedback';
 import { strings, formatString } from '../lib/i18n';
-import { getWords, getDailyStats, updateStats } from '../lib/storage';
+import { updateStats } from '../lib/storage';
 import { equalsMeaning } from '../lib/text';
 import { getHintText, calculateScore, getInitialLives } from '../lib/game';
 import { soundManager } from '../lib/sound';
-import { Word, DailyStats, RoundModifiers } from '../types';
+import { useGameSession } from '../lib/gameSession';
 
 export default function GuessScreen() {
   const params = useLocalSearchParams();
-  const [word, setWord] = useState<Word | null>(null);
-  const [stats, setStats] = useState<DailyStats>({ date: '', correct: 0, wrong: 0, streak: 0 });
+  const { currentRound, updateRound, completeRound, session } = useGameSession();
   const [userInput, setUserInput] = useState('');
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [hintUsed, setHintUsed] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
   const [showHintModal, setShowHintModal] = useState(false);
   const [hintText, setHintText] = useState('');
   
-  const modifiers: RoundModifiers = {
-    hasHint: params.hasHint === 'true',
-    hasDoubleScore: params.hasDoubleScore === 'true',
-    hasExtraLife: params.hasExtraLife === 'true',
-  };
+  const isSessionMode = params.sessionMode === 'true';
   
+  useEffect(() => {
+    if (!isSessionMode) {
+      loadData();
+    } else {
+      loadStats();
+    }
+  }, [isSessionMode]);
+  
+  if (!currentRound && isSessionMode) {
+    router.push('/');
+    return null;
+  }
+  
+  const word = currentRound?.word;
+  const modifiers = currentRound?.modifiers || { hasHint: false, hasDoubleScore: false, hasExtraLife: false };
+  const wrongAttempts = currentRound ? (getInitialLives(modifiers) - currentRound.livesRemaining) : 0;
+  const hintUsed = currentRound?.hintUsed || false;
   const maxLives = getInitialLives(modifiers);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
-    const [wordsData, statsData] = await Promise.all([
-      getWords(),
-      getDailyStats(),
-    ]);
-    
-    const currentWord = wordsData.find(w => w.id === params.wordId);
-    if (!currentWord) {
-      router.back();
-      return;
-    }
-    
-    setWord(currentWord);
-    setStats(statsData);
+    // Load data for non-session mode if needed
+  };
+  
+  const loadStats = async () => {
+    // Load stats for session mode if needed
   };
 
   const handleCheck = async () => {
-    if (!word || gameEnded || !userInput.trim()) return;
+    if (!word || gameEnded || !userInput.trim() || !currentRound) return;
 
     Keyboard.dismiss();
     
@@ -62,27 +60,38 @@ export default function GuessScreen() {
     if (isCorrect) {
       await soundManager.playCorrectSound();
       const score = calculateScore(true, modifiers, hintUsed);
-      const newStats = await updateStats(true);
-      setStats(newStats);
+      await updateStats(true);
       setGameEnded(true);
+      
+      if (isSessionMode) {
+        completeRound(score);
+      }
       
       setFeedback({
         type: 'success',
-        message: formatString(strings.correctAnswer, { count: newStats.correct.toString() }),
+        message: '✅ Doğru! Tebrikler!',
       });
       
       setTimeout(() => {
-        router.push('/');
+        if (isSessionMode) {
+          router.push('/result');
+        } else {
+          router.push('/');
+        }
       }, 2000);
     } else {
-      const newWrongAttempts = wrongAttempts + 1;
-      setWrongAttempts(newWrongAttempts);
+      const newLivesRemaining = currentRound.livesRemaining - 1;
+      updateRound({ livesRemaining: newLivesRemaining });
       
       await soundManager.playWrongSound();
       
-      if (newWrongAttempts >= maxLives) {
+      if (newLivesRemaining <= 0) {
         await updateStats(false);
         setGameEnded(true);
+        
+        if (isSessionMode) {
+          completeRound(0);
+        }
         
         setFeedback({
           type: 'error',
@@ -90,15 +99,19 @@ export default function GuessScreen() {
         });
         
         setTimeout(() => {
-          router.push({
-            pathname: '/result',
-            params: {
-              won: 'false',
-              score: '0',
-              word: word.term,
-              meaning: word.meaning,
-            },
-          });
+          if (isSessionMode) {
+            router.push('/result');
+          } else {
+            router.push({
+              pathname: '/result',
+              params: {
+                won: 'false',
+                score: '0',
+                word: word.term,
+                meaning: word.meaning,
+              },
+            });
+          }
         }, 3000);
       } else {
         setFeedback({
@@ -120,12 +133,18 @@ export default function GuessScreen() {
   };
 
   const confirmHint = () => {
-    setHintUsed(true);
+    if (currentRound) {
+      updateRound({ hintUsed: true });
+    }
     setShowHintModal(false);
   };
 
   const handleBackToHome = () => {
-    router.push('/');
+    if (isSessionMode && session) {
+      router.push('/result');
+    } else {
+      router.push('/');
+    }
   };
 
   const dismissKeyboard = () => {
@@ -172,7 +191,7 @@ export default function GuessScreen() {
             
             <View style={styles.livesContainer}>
               <Text style={styles.livesText}>
-                Kalan Can: {maxLives - wrongAttempts}
+                Kalan Can: {currentRound?.livesRemaining || maxLives}
               </Text>
             </View>
           </ScrollView>

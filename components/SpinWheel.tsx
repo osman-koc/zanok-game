@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { View, Animated, Dimensions, StyleSheet } from 'react-native';
 import Svg, { Circle, Path, Text as SvgText, G } from 'react-native-svg';
 import { WheelSegment } from '../types';
-import { WHEEL_SEGMENTS } from '../lib/game';
+import { WHEEL_SEGMENTS, spinWheel } from '../lib/game';
 
 const { width } = Dimensions.get('window');
 const WHEEL_SIZE = Math.min(width * 0.8, 300);
@@ -12,15 +12,15 @@ const CENTER = RADIUS;
 interface SpinWheelProps {
   isSpinning: boolean;
   onSpinComplete: (segment: WheelSegment) => void;
-  selectedSegment?: WheelSegment;
 }
 
-export default function SpinWheel({ isSpinning, onSpinComplete, selectedSegment }: SpinWheelProps) {
+export default function SpinWheel({ isSpinning, onSpinComplete }: SpinWheelProps) {
   const spinValue = useRef(new Animated.Value(0)).current;
   const segmentAngle = 360 / WHEEL_SEGMENTS.length;
 
   useEffect(() => {
-    if (isSpinning && selectedSegment) {
+    if (isSpinning) {
+      const selectedSegment = spinWheel();
       const targetIndex = WHEEL_SEGMENTS.findIndex(s => s.id === selectedSegment.id);
       const targetAngle = 360 - (targetIndex * segmentAngle) + (segmentAngle / 2);
       const finalAngle = 360 * 3 + targetAngle; // 3 full rotations + target
@@ -34,7 +34,7 @@ export default function SpinWheel({ isSpinning, onSpinComplete, selectedSegment 
         onSpinComplete(selectedSegment);
       });
     }
-  }, [isSpinning, selectedSegment]);
+  }, [isSpinning]);
 
   const createSegmentPath = (index: number): string => {
     const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);

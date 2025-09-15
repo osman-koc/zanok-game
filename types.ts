@@ -34,6 +34,14 @@ export interface GameRound {
   score: number;
 }
 
+export interface GameSession {
+  rounds: GameRound[];
+  currentRoundIndex: number;
+  totalScore: number;
+  isActive: boolean;
+  startedAt: number;
+}
+
 export interface Settings {
   soundEnabled: boolean;
 }
