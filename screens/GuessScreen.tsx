@@ -76,14 +76,6 @@ export default function GuessScreen() {
         type: 'success',
         message: '✅ Doğru! Tebrikler!',
       });
-      
-      setTimeout(() => {
-        if (isSessionMode) {
-          router.push('/result');
-        } else {
-          router.push('/');
-        }
-      }, 2000);
     } else {
       const newLivesRemaining = currentRound.livesRemaining - 1;
       updateRound({ livesRemaining: newLivesRemaining });
