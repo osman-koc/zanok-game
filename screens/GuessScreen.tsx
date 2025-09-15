@@ -14,7 +14,7 @@ import { useGameSession } from '../lib/gameSession';
 
 export default function GuessScreen() {
   const params = useLocalSearchParams();
-  const { currentRound, updateRound, completeRound, session, startSingleRound } = useGameSession();
+  const { currentRound, updateRound, completeRound, session, startSingleRound, addRound, endSession } = useGameSession();
   const [userInput, setUserInput] = useState('');
   const [gameEnded, setGameEnded] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
@@ -22,21 +22,41 @@ export default function GuessScreen() {
   const [hintText, setHintText] = useState('');
   
   const isSessionMode = params.sessionMode === 'true';
+  const continueSession = params.continueSession === 'true';
   
   useEffect(() => {
     if (!isSessionMode && !currentRound) {
       // Start a single round for non-session mode
       startSingleRound();
+    } else if (continueSession && session && !currentRound) {
+      // Continue session by adding a new round
+      const roundData = addRound();
+      if (!roundData) {
+        // No more words available, end session
+        endSession();
+        router.push('/');
+      }
     }
-  }, [isSessionMode, currentRound, startSingleRound]);
+  }, [isSessionMode, continueSession, currentRound, session, startSingleRound, addRound, endSession]);
   
   useEffect(() => {
-    if (!currentRound && isSessionMode) {
+    if (!currentRound && isSessionMode && !continueSession) {
       router.push('/');
     }
-  }, [currentRound, isSessionMode]);
+  }, [currentRound, isSessionMode, continueSession]);
   
-  if (!currentRound && isSessionMode) {
+  // Reset states when round changes
+  useEffect(() => {
+    if (currentRound) {
+      setUserInput('');
+      setGameEnded(false);
+      setFeedback({ type: null, message: '' });
+      setShowHintModal(false);
+      setHintText('');
+    }
+  }, [currentRound?.word.id]);
+  
+  if (!currentRound) {
     return null;
   }
   
@@ -61,29 +81,29 @@ export default function GuessScreen() {
       await updateStats(true);
       setGameEnded(true);
       
-      if (isSessionMode) {
-        completeRound(score);
-        setTimeout(() => {
-          router.push('/result');
-        }, 1500);
-      } else {
-        setTimeout(() => {
-          router.push({
-            pathname: '/result',
-            params: {
-              won: 'true',
-              score: score.toString(),
-              word: word.term,
-              meaning: word.meaning,
-            },
-          });
-        }, 1500);
-      }
-      
       setFeedback({
         type: 'success',
         message: '✅ Doğru! Tebrikler!',
       });
+      
+      // Complete round and navigate after showing feedback
+      setTimeout(() => {
+        if (isSessionMode) {
+          completeRound(score);
+        }
+        
+        router.push({
+          pathname: '/result',
+          params: isSessionMode ? {
+            sessionMode: 'true',
+          } : {
+            won: 'true',
+            score: score.toString(),
+            word: word.term,
+            meaning: word.meaning,
+          },
+        });
+      }, 1500);
     } else {
       const newLivesRemaining = currentRound.livesRemaining - 1;
       updateRound({ livesRemaining: newLivesRemaining });
@@ -94,29 +114,28 @@ export default function GuessScreen() {
         await updateStats(false);
         setGameEnded(true);
         
-        if (isSessionMode) {
-          completeRound(0);
-        }
-        
         setFeedback({
           type: 'error',
           message: formatString(strings.wrongAnswer, { answer: word.meaning }),
         });
         
+        // Complete round and navigate after showing feedback
         setTimeout(() => {
           if (isSessionMode) {
-            router.push('/result');
-          } else {
-            router.push({
-              pathname: '/result',
-              params: {
-                won: 'false',
-                score: '0',
-                word: word.term,
-                meaning: word.meaning,
-              },
-            });
+            completeRound(0);
           }
+          
+          router.push({
+            pathname: '/result',
+            params: isSessionMode ? {
+              sessionMode: 'true',
+            } : {
+              won: 'false',
+              score: '0',
+              word: word.term,
+              meaning: word.meaning,
+            },
+          });
         }, 2000);
       } else {
         setFeedback({

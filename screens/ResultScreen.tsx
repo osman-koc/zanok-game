@@ -7,7 +7,7 @@ import { useGameSession } from '../lib/gameSession';
 
 export default function ResultScreen() {
   const params = useLocalSearchParams();
-  const { session, isComplete, addRound, endSession } = useGameSession();
+  const { session, isComplete, endSession } = useGameSession();
   
   // Check if we're in session mode
   const isSessionMode = session && session.isActive;
@@ -29,16 +29,14 @@ export default function ResultScreen() {
 
   const handleContinue = () => {
     if (isSessionMode && !isComplete) {
-      const roundData = addRound();
-      if (roundData) {
-        router.push({
-          pathname: '/guess',
-          params: { sessionMode: 'true' }
-        });
-      } else {
-        endSession();
-        router.push('/');
-      }
+      // Navigate to guess screen, new round will be added there
+      router.push({
+        pathname: '/guess',
+        params: { 
+          sessionMode: 'true',
+          continueSession: 'true'
+        }
+      });
     } else {
       // Non-session mode: start a new random word
       router.push({
