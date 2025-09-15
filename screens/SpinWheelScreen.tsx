@@ -68,7 +68,7 @@ export default function SpinWheelScreen() {
     
     if (!roundData) return;
 
-    router.push({
+    router.replace({
       pathname: '/guess',
       params: {
         sessionMode: 'true',

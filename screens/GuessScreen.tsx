@@ -88,7 +88,7 @@ export default function GuessScreen() {
           completeRound(score);
         }
         
-        router.push({
+        router.replace({
           pathname: '/result',
           params: isSessionMode ? {
             sessionMode: 'true',
@@ -121,7 +121,7 @@ export default function GuessScreen() {
             completeRound(0);
           }
           
-          router.push({
+          router.replace({
             pathname: '/result',
             params: isSessionMode ? {
               sessionMode: 'true',

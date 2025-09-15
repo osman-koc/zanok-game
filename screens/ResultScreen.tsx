@@ -50,7 +50,8 @@ export default function ResultScreen() {
     if (isSessionMode) {
       endSession();
     }
-    router.push('/');
+    // Use replace to avoid navigation stack issues
+    router.replace('/');
   };
 
 
