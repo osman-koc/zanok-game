@@ -19,13 +19,42 @@ const DEFAULT_WORDS: Word[] = [
   { id: '8', term: 'yıldız', meaning: 'star', createdAt: Date.now() },
   { id: '9', term: 'deniz', meaning: 'sea', createdAt: Date.now() },
   { id: '10', term: 'dağ', meaning: 'mountain', createdAt: Date.now() },
+  { id: '11', term: 'kedi', meaning: 'cat', createdAt: Date.now() },
+  { id: '12', term: 'köpek', meaning: 'dog', createdAt: Date.now() },
+  { id: '13', term: 'kuş', meaning: 'bird', createdAt: Date.now() },
+  { id: '14', term: 'balık', meaning: 'fish', createdAt: Date.now() },
+  { id: '15', term: 'çiçek', meaning: 'flower', createdAt: Date.now() },
+  { id: '16', term: 'ağaç', meaning: 'tree', createdAt: Date.now() },
+  { id: '17', term: 'masa', meaning: 'table', createdAt: Date.now() },
+  { id: '18', term: 'sandalye', meaning: 'chair', createdAt: Date.now() },
+  { id: '19', term: 'kapı', meaning: 'door', createdAt: Date.now() },
+  { id: '20', term: 'pencere', meaning: 'window', createdAt: Date.now() },
+  { id: '21', term: 'yemek', meaning: 'food', createdAt: Date.now() },
+  { id: '22', term: 'içmek', meaning: 'drink', createdAt: Date.now() },
+  { id: '23', term: 'uyumak', meaning: 'sleep', createdAt: Date.now() },
+  { id: '24', term: 'koşmak', meaning: 'run', createdAt: Date.now() },
+  { id: '25', term: 'yürümek', meaning: 'walk', createdAt: Date.now() },
+  { id: '26', term: 'okumak', meaning: 'read', createdAt: Date.now() },
+  { id: '27', term: 'yazmak', meaning: 'write', createdAt: Date.now() },
+  { id: '28', term: 'dinlemek', meaning: 'listen', createdAt: Date.now() },
+  { id: '29', term: 'bakmak', meaning: 'look', createdAt: Date.now() },
+  { id: '30', term: 'konuşmak', meaning: 'speak', createdAt: Date.now() },
 ];
 
 export async function getWords(): Promise<Word[]> {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.WORDS);
     if (data) {
-      return JSON.parse(data);
+      const existingWords = JSON.parse(data);
+      // If we have fewer words than the default set, merge with defaults
+      if (existingWords.length < DEFAULT_WORDS.length) {
+        const existingIds = new Set(existingWords.map((w: Word) => w.id));
+        const newWords = DEFAULT_WORDS.filter(w => !existingIds.has(w.id));
+        const mergedWords = [...existingWords, ...newWords];
+        await saveWords(mergedWords);
+        return mergedWords;
+      }
+      return existingWords;
     } else {
       // If no words exist, add default words
       await saveWords(DEFAULT_WORDS);

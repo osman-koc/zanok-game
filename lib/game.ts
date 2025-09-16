@@ -13,7 +13,7 @@ export const WHEEL_SEGMENTS: WheelSegment[] = [
 
 // Store last used word IDs to prevent immediate repetition
 let recentWordIds: string[] = [];
-const RECENT_WORDS_BUFFER = 5; // Avoid repeating last 5 words
+const RECENT_WORDS_BUFFER = 8; // Avoid repeating last 8 words
 
 export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word | null {
   if (words.length === 0) return null;

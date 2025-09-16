@@ -21,12 +21,19 @@ export default function ResultScreen() {
   const meaning = params.meaning as string;
   
   // Session mode - get the last completed round
+  // If currentRoundIndex > 0, the last completed round is at currentRoundIndex - 1
+  // If currentRoundIndex === 0, we might be looking at the first round that just completed
   const lastCompletedIndex = session ? Math.max(0, session.currentRoundIndex - 1) : 0;
   const currentRound = session?.rounds[lastCompletedIndex];
-  const sessionWon = isSessionMode ? (currentRound?.score ?? 0) > 0 : won;
-  const sessionScore = isSessionMode ? (currentRound?.score ?? 0) : score;
-  const sessionWord = isSessionMode ? currentRound?.word.term : word;
-  const sessionMeaning = isSessionMode ? currentRound?.word.meaning : meaning;
+  
+  // If we can't find the round at lastCompletedIndex, try the current index (for edge cases)
+  const fallbackRound = session?.rounds[session.currentRoundIndex];
+  const actualRound = currentRound || fallbackRound;
+  
+  const sessionWon = isSessionMode ? (actualRound?.score ?? 0) > 0 : won;
+  const sessionScore = isSessionMode ? (actualRound?.score ?? 0) : score;
+  const sessionWord = isSessionMode ? actualRound?.word.term : word;
+  const sessionMeaning = isSessionMode ? actualRound?.word.meaning : meaning;
   const totalScore = session?.totalScore || 0;
   const roundNumber = lastCompletedIndex + 1; // Round number is 1-based
   
@@ -47,7 +54,7 @@ export default function ResultScreen() {
   }, [sessionWon, isSessionMode, isComplete, totalScore]);
 
   // Show loading if we're in session mode but don't have the required data yet
-  if (isSessionMode && (!session || !currentRound)) {
+  if (isSessionMode && (!session || !actualRound)) {
     return (
       <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -126,7 +133,7 @@ export default function ResultScreen() {
             </View>
           )}
           
-          {isSessionMode && totalScore > 0 && (
+          {isSessionMode && (
             <View style={[styles.scoreContainer, styles.totalScoreContainer]}>
               <Text style={[styles.scoreText, styles.totalScoreText]}>Toplam Puan: {totalScore}</Text>
             </View>
