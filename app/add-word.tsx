@@ -23,7 +23,7 @@ export default function AddWordScreen() {
 
   const handleAddWord = async () => {
     if (!turkishWord.trim() || !englishWord.trim()) {
-      Alert.alert('Hata', 'Lütfen hem Türkçe hem de İngilizce kelimeyi girin');
+      Alert.alert('Hata', 'Lütfen hem kelimeyi hem de anlamını girin');
       return;
     }
 
@@ -69,7 +69,7 @@ export default function AddWordScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>İngilizce Kelime</Text>
+            <Text style={styles.label}>Kelimenin Anlamı</Text>
             <TextInput
               style={styles.input}
               value={englishWord}
