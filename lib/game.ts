@@ -11,20 +11,56 @@ export const WHEEL_SEGMENTS: WheelSegment[] = [
   { id: '8', label: 'Çift Puan', type: 'double', color: '#F7DC6F', icon: '⭐' },
 ];
 
+// Store last used word IDs to prevent immediate repetition
+let recentWordIds: string[] = [];
+const RECENT_WORDS_BUFFER = 5; // Avoid repeating last 5 words
+
 export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word | null {
   if (words.length === 0) return null;
   
+  // Combine used words in session with recently used words
+  const allUsedIds = [...new Set([...usedWordIds, ...recentWordIds])];
+  
   let availableWords = words;
-  if (usedWordIds.length > 0 && words.length > usedWordIds.length) {
+  
+  // Try to filter out used words if we have enough words left
+  if (allUsedIds.length > 0 && words.length > allUsedIds.length) {
+    availableWords = words.filter(word => !allUsedIds.includes(word.id));
+  }
+  
+  // If no words available after filtering, use words not in current session
+  if (availableWords.length === 0 && usedWordIds.length > 0) {
     availableWords = words.filter(word => !usedWordIds.includes(word.id));
   }
   
+  // If still no words, reset and use all words except the very last one
   if (availableWords.length === 0) {
-    availableWords = words;
+    const lastWordId = recentWordIds[recentWordIds.length - 1];
+    availableWords = lastWordId 
+      ? words.filter(word => word.id !== lastWordId)
+      : words;
   }
   
-  const randomIndex = Math.floor(Math.random() * availableWords.length);
-  return availableWords[randomIndex];
+  // Use a better random selection with timestamp seed
+  const seed = Date.now();
+  const randomValue = ((seed * 9301 + 49297) % 233280) / 233280;
+  const randomIndex = Math.floor(randomValue * availableWords.length);
+  const selectedWord = availableWords[randomIndex];
+  
+  // Update recent words buffer
+  if (selectedWord) {
+    recentWordIds.push(selectedWord.id);
+    if (recentWordIds.length > RECENT_WORDS_BUFFER) {
+      recentWordIds.shift();
+    }
+  }
+  
+  return selectedWord;
+}
+
+// Function to reset the recent words buffer (useful when starting a new session)
+export function resetRecentWords(): void {
+  recentWordIds = [];
 }
 
 export function spinWheel(): WheelSegment {

@@ -10,7 +10,8 @@ import {
   isSessionComplete,
   getRandomWord,
   createRoundModifiers,
-  spinWheel
+  spinWheel,
+  resetRecentWords
 } from './game';
 import { getWords } from './storage';
 
@@ -30,6 +31,7 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
   const startNewSession = useCallback(() => {
     if (words.length === 0) return null;
     
+    resetRecentWords(); // Reset recent words buffer for new session
     const newSession = createGameSession(words);
     setSession(newSession);
     return newSession;
@@ -38,6 +40,7 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
   const startNewSessionWithRound = useCallback(() => {
     if (words.length === 0) return null;
     
+    resetRecentWords(); // Reset recent words buffer for new session
     const newSession = createGameSession(words);
     const word = getRandomWord(words, []);
     if (!word) return null;

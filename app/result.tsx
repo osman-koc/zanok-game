@@ -20,14 +20,15 @@ export default function ResultScreen() {
   const word = params.word as string;
   const meaning = params.meaning as string;
   
-  // Session mode
-  const currentRound = session?.rounds[session.currentRoundIndex - 1];
+  // Session mode - get the last completed round
+  const lastCompletedIndex = session ? Math.max(0, session.currentRoundIndex - 1) : 0;
+  const currentRound = session?.rounds[lastCompletedIndex];
   const sessionWon = isSessionMode ? (currentRound?.score ?? 0) > 0 : won;
   const sessionScore = isSessionMode ? (currentRound?.score ?? 0) : score;
   const sessionWord = isSessionMode ? currentRound?.word.term : word;
   const sessionMeaning = isSessionMode ? currentRound?.word.meaning : meaning;
   const totalScore = session?.totalScore || 0;
-  const roundNumber = session?.currentRoundIndex || 1;
+  const roundNumber = lastCompletedIndex + 1; // Round number is 1-based
   
   useEffect(() => {
     if (sessionWon) {
@@ -121,13 +122,13 @@ export default function ResultScreen() {
           
           {sessionScore > 0 && (
             <View style={styles.scoreContainer}>
-              <Text style={styles.scoreText}>{isSessionMode ? `Bu Round: ${sessionScore}` : `Puan: ${sessionScore}`}</Text>
+              <Text style={styles.scoreText}>{isSessionMode ? `Bu Round: +${sessionScore} puan` : `Puan: ${sessionScore}`}</Text>
             </View>
           )}
           
-          {isSessionMode && (
-            <View style={styles.scoreContainer}>
-              <Text style={styles.scoreText}>Toplam Puan: {totalScore}</Text>
+          {isSessionMode && totalScore > 0 && (
+            <View style={[styles.scoreContainer, styles.totalScoreContainer]}>
+              <Text style={[styles.scoreText, styles.totalScoreText]}>Toplam Puan: {totalScore}</Text>
             </View>
           )}
           
@@ -213,12 +214,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   scoreText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  totalScoreContainer: {
+    backgroundColor: '#FF9800',
+    marginBottom: 20,
+  },
+  totalScoreText: {
+    fontSize: 20,
   },
   wordInfo: {
     alignItems: 'center',
