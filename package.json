@@ -6,7 +6,9 @@
     "start": "bunx rork start -p hs6t4vygxn1pj6wqo2xbi --tunnel",
     "start-web": "bunx rork start -p hs6t4vygxn1pj6wqo2xbi --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p hs6t4vygxn1pj6wqo2xbi --web --tunnel",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "eas:build:ios": "eas build --platform ios --profile production",
+    "eas:submit:ios": "eas submit --platform ios --profile production --non-interactive"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -33,7 +35,7 @@
     "expo-symbols": "~0.4.4",
     "expo-system-ui": "~5.0.6",
     "expo-web-browser": "^14.2.0",
-    "lucide-react-native": "^0.475.0",
+    "lucide-react-native": "^0.544.0",
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-dom": "19.0.0",

@@ -3,6 +3,8 @@
     "name": "Zanok - Dinamik kelime oyunu",
     "slug": "zanok-game",
     "version": "1.0.0",
+    "description": "Zanok — Dinamik kelime öğrenme ve tahmin oyunu. İster yabancı dil karşılığı ister sözlük karşılığı ile kelime öğrenin, ister arkadaşlarınıza meydan okuyun. Her oyunda farklı kelimelerle karşılaşın ve kelime dağarcığınızı eğlenceli bir şekilde geliştirin!",
+    "privacy": "public",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -16,6 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.osmankoc.zanok",
+      "buildNumber": "1.0.0",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -29,6 +32,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.osmankoc.zanok",
+      "versionCode": 1,
       "permissions": [
         "RECORD_AUDIO"
       ]
@@ -52,6 +56,8 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "osman-koc",
+    "githubUrl": "https://github.com/osman-koc/zanok-game"
   }
 }
