@@ -8,13 +8,32 @@ const STORAGE_KEYS = {
   TOTAL_STATS: 'totalStats',
 } as const;
 
+const DEFAULT_WORDS: Word[] = [
+  { id: '1', term: 'elma', meaning: 'apple', createdAt: Date.now() },
+  { id: '2', term: 'kitap', meaning: 'book', createdAt: Date.now() },
+  { id: '3', term: 'ev', meaning: 'house', createdAt: Date.now() },
+  { id: '4', term: 'araba', meaning: 'car', createdAt: Date.now() },
+  { id: '5', term: 'su', meaning: 'water', createdAt: Date.now() },
+  { id: '6', term: 'güneş', meaning: 'sun', createdAt: Date.now() },
+  { id: '7', term: 'ay', meaning: 'moon', createdAt: Date.now() },
+  { id: '8', term: 'yıldız', meaning: 'star', createdAt: Date.now() },
+  { id: '9', term: 'deniz', meaning: 'sea', createdAt: Date.now() },
+  { id: '10', term: 'dağ', meaning: 'mountain', createdAt: Date.now() },
+];
+
 export async function getWords(): Promise<Word[]> {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.WORDS);
-    return data ? JSON.parse(data) : [];
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      // If no words exist, add default words
+      await saveWords(DEFAULT_WORDS);
+      return DEFAULT_WORDS;
+    }
   } catch (error) {
     console.error('Error getting words:', error);
-    return [];
+    return DEFAULT_WORDS;
   }
 }
 

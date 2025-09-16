@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BookOpen, User } from 'lucide-react-native';
+import { BookOpen, User, Plus } from 'lucide-react-native';
 import SpinWheel from '@/components/SpinWheel';
-import Logo from '@/components/Logo';
+
 import ZanMascot from '@/components/ZanMascot';
 import { useGameSession } from '@/lib/gameSession';
 import { WheelSegment } from '../types';
@@ -14,7 +14,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [isSpinning, setIsSpinning] = useState(false);
   const [zanMessage, setZanMessage] = useState<{ text: string; duration?: number } | null>(null);
-  const { startNewSessionWithRound } = useGameSession();
+  const { startNewSessionWithRound, words } = useGameSession();
 
   const handleSpin = () => {
     if (isSpinning) return;
@@ -25,9 +25,20 @@ export default function HomeScreen() {
   const handleSpinComplete = (segment: WheelSegment) => {
     setIsSpinning(false);
     
+    console.log('Words available:', words.length);
+    console.log('Segment selected:', segment);
+    
+    if (words.length === 0) {
+      console.log('No words available');
+      setZanMessage({ text: 'Önce kelime eklemelisin!', duration: 3000 });
+      return;
+    }
+    
     const result = startNewSessionWithRound();
+    console.log('Session result:', result);
+    
     if (!result) {
-      console.log('Error: Could not load words');
+      console.log('Error: Could not create session');
       setZanMessage({ text: 'Hmm, bir sorun var. Tekrar dene!', duration: 3000 });
       return;
     }
@@ -45,6 +56,11 @@ export default function HomeScreen() {
   };
 
   const handleQuickPlay = () => {
+    if (words.length === 0) {
+      setZanMessage({ text: 'Önce kelime eklemelisin!', duration: 3000 });
+      return;
+    }
+    
     router.push({
       pathname: '/guess',
       params: {
@@ -60,11 +76,16 @@ export default function HomeScreen() {
           <User color="white" size={24} />
         </TouchableOpacity>
         
-        <Logo />
+
         
-        <TouchableOpacity onPress={() => router.push('/word-list')} style={styles.headerButton}>
-          <BookOpen color="white" size={24} />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity onPress={() => router.push('/add-word')} style={styles.headerButton}>
+            <Plus color="white" size={24} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/word-list')} style={styles.headerButton}>
+            <BookOpen color="white" size={24} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -115,6 +136,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 20,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 10,
   },
   headerButton: {
     backgroundColor: 'rgba(255,255,255,0.2)',
