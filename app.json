@@ -21,9 +21,11 @@
       "buildNumber": "1.0.0",
       "infoPlist": {
         "UIBackgroundModes": [
+          "audio",
           "audio"
         ],
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone"
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -34,7 +36,9 @@
       "package": "com.osmankoc.zanok",
       "versionCode": 1,
       "permissions": [
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ]
     },
     "web": {
@@ -58,6 +62,14 @@
       "typedRoutes": true
     },
     "owner": "osman-koc",
-    "githubUrl": "https://github.com/osman-koc/zanok-game"
+    "githubUrl": "https://github.com/osman-koc/zanok-game",
+    "extra": {
+      "router": {
+        "origin": "https://rork.com/"
+      },
+      "eas": {
+        "projectId": "af5746ca-e70e-49cf-9e0d-0cbbcc9acfa3"
+      }
+    }
   }
 }

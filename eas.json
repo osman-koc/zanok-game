@@ -1,34 +1,35 @@
 {
-  "cli": {
-    "version": "3.34.2",
-    "promptToConfigurePushNotifications": false,
-    "appVersionSource": "remote"
-  },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development",
       "android": {
         "buildType": "apk"
       },
       "ios": {
-        "buildType": "simulator",
-        "resourceClass": "m1-medium"
+        "simulator": true
       }
     },
     "production": {
-      "releaseChannel": "production",
+      "distribution": "store",
+      "channel": "production",
       "env": {},
-      "ios": {
-        "buildType": "app-store"
-      },
       "android": {
         "buildType": "app-bundle"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "senin-apple-id@example.com",
+        "ascAppId": "YOUR_ASC_APP_ID",
+        "appleTeamId": "YOUR_APPLE_TEAM_ID"
+      }
+    }
   }
 }
