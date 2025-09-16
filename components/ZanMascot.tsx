@@ -16,7 +16,7 @@ type ZanMessage = { text: string; duration?: number };
 interface ZanMascotProps {
   pose?: ZanPose;
   message?: ZanMessage | null;
-  position?: 'bottom-right' | 'bottom-left' | 'center';
+  position?: 'bottom-right' | 'bottom-left' | 'center' | 'right-center';
   size?: 'small' | 'medium' | 'large';
   animate?: boolean;
 }
@@ -100,6 +100,7 @@ export default function ZanMascot({
     const base: any = { position: 'absolute', zIndex: 1000 };
     if (position === 'bottom-right') return { ...base, bottom: 20, right: 20 };
     if (position === 'bottom-left') return { ...base, bottom: 20, left: 20 };
+    if (position === 'right-center') return { ...base, right: 20, top: '50%', marginTop: -currentSize.mascot / 2 };
     return { ...base, bottom: '30%', alignSelf: 'center' };
   };
 

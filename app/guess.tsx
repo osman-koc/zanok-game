@@ -333,7 +333,7 @@ export default function GuessScreen() {
         <ZanMascot 
           pose={zanPose} 
           message={zanMessage}
-          position="top-right"
+          position="right-center"
           size="small"
         />
       </LinearGradient>
