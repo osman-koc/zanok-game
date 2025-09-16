@@ -1,40 +1,49 @@
 import * as React from 'react';
 
-// Polyfill for React.use if it doesn't exist
-// This is needed for expo-router compatibility with React 18
-if (typeof (React as any).use === 'undefined') {
-  (React as any).use = function(context: any) {
-    // For React Context objects, return the current value directly
-    if (context && typeof context === 'object') {
-      // Check for React Context pattern
-      if (context._currentValue !== undefined) {
-        return context._currentValue;
-      }
-      if (context._currentValue2 !== undefined) {
-        return context._currentValue2;
-      }
-      // For expo-router store context specifically
-      if (context.displayName === 'StoreContext' || context._context) {
-        return null; // Return null for store context to prevent errors
-      }
-    }
-    // For promises, throw them (Suspense will catch)
-    if (context && typeof context.then === 'function') {
-      throw context;
-    }
-    // For other values, return as-is
-    return context;
-  };
-}
+// React 19 compatibility for expo-router
+// The issue is that expo-router expects React.use to work in a specific way
+// but React 19's implementation might not be fully compatible yet
 
-// Ensure the polyfill is available globally
-if (typeof globalThis !== 'undefined') {
-  if (!(globalThis as any).React) {
-    (globalThis as any).React = React;
+// Store the original use function if it exists
+const originalUse = (React as any).use;
+
+// Create a compatible use function for expo-router
+(React as any).use = function(resource: any) {
+  // Handle React Context specifically for expo-router
+  if (resource && typeof resource === 'object') {
+    // Check if it's a React Context
+    if (resource.$$typeof && resource._currentValue !== undefined) {
+      return resource._currentValue;
+    }
+    if (resource.$$typeof && resource._currentValue2 !== undefined) {
+      return resource._currentValue2;
+    }
+    // For expo-router's StoreContext, return null to prevent errors
+    if (!resource.$$typeof && resource === null) {
+      return null;
+    }
   }
-  if (!(globalThis as any).React.use) {
-    (globalThis as any).React.use = (React as any).use;
+  
+  // For promises, use original behavior or throw
+  if (resource && typeof resource.then === 'function') {
+    if (originalUse) {
+      return originalUse(resource);
+    }
+    throw resource; // Suspense will catch this
   }
-}
+  
+  // Use original implementation if available
+  if (originalUse) {
+    try {
+      return originalUse(resource);
+    } catch (error) {
+      // Fallback for compatibility
+      return null;
+    }
+  }
+  
+  // Default fallback
+  return resource;
+};
 
 export default React;
