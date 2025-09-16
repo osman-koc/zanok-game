@@ -141,7 +141,7 @@ export default function ZanMascot({
 
   const renderZan = () => {
     const eyeScale = pose === 'thinking' ? 0.8 : 1;
-    const beakColor = pose === 'happy' ? '#FFD93B' : '#FFC107';
+    const beakColor = pose === 'happy' ? '#FFD93B' : '#FFA500';
     
     return (
       <Animated.View 
@@ -155,45 +155,52 @@ export default function ZanMascot({
         ]}
       >
         <Svg width={currentSize.mascot} height={currentSize.mascot} viewBox="0 0 100 100">
-          {/* Body */}
-          <Ellipse cx="50" cy="60" rx="25" ry="30" fill="#3CB371" />
+          {/* Main Body - Green oval */}
+          <Ellipse cx="50" cy="55" rx="22" ry="28" fill="#4CAF50" />
           
-          {/* Chest */}
-          <Ellipse cx="50" cy="65" rx="18" ry="20" fill="#FFD93B" />
+          {/* Yellow chest area */}
+          <Ellipse cx="50" cy="62" rx="16" ry="22" fill="#FFD93B" />
           
-          {/* Head */}
-          <Circle cx="50" cy="35" r="20" fill="#3CB371" />
+          {/* Head - Green circle */}
+          <Circle cx="50" cy="32" r="18" fill="#4CAF50" />
           
-          {/* Beak */}
-          <Path d="M 35 35 Q 25 35 30 40 Q 35 38 35 35" fill={beakColor} />
+          {/* Orange beak - curved like in icon */}
+          <Path d="M 32 32 Q 22 32 25 38 Q 30 36 32 32" fill={beakColor} />
+          <Path d="M 25 38 Q 28 40 32 38" fill="#FF6B35" />
           
-          {/* Eyes */}
-          <Circle cx="45" cy="30" r="4" fill="white" />
-          <Circle cx="55" cy="30" r="4" fill="white" />
-          <Circle cx="45" cy="30" r={2 * eyeScale} fill="black" />
-          <Circle cx={pose === 'thinking' ? "54" : "55"} cy="30" r={2 * eyeScale} fill="black" />
+          {/* Large white eyes with black pupils */}
+          <Circle cx="42" cy="28" r="5" fill="#F5F5DC" />
+          <Circle cx="58" cy="28" r="5" fill="#F5F5DC" />
+          <Circle cx="42" cy="28" r={3 * eyeScale} fill="#2C3E50" />
+          <Circle cx={pose === 'thinking' ? "57" : "58"} cy="28" r={3 * eyeScale} fill="#2C3E50" />
           
           {/* Eye highlights */}
-          <Circle cx="46" cy="29" r="1" fill="white" />
-          <Circle cx={pose === 'thinking' ? "55" : "56"} cy="29" r="1" fill="white" />
+          <Circle cx="43" cy="27" r="1.5" fill="white" />
+          <Circle cx={pose === 'thinking' ? "58" : "59"} cy="27" r="1.5" fill="white" />
           
-          {/* Crest */}
-          <Path d="M 45 15 Q 50 10 55 15 Q 52 18 50 16 Q 48 18 45 15" fill="#FF6B6B" />
+          {/* Red crest feathers on top */}
+          <Path d="M 42 14 Q 45 8 48 14" fill="#FF5722" />
+          <Path d="M 48 14 Q 50 8 52 14" fill="#FF5722" />
+          <Path d="M 52 14 Q 55 8 58 14" fill="#FF5722" />
           
-          {/* Wings */}
+          {/* Blue wings - more detailed like in icon */}
           <G style={styles.leftWing}>
-            <Ellipse cx="30" cy="50" rx="8" ry="15" fill="#1E90FF" />
-            <Ellipse cx="28" cy="45" rx="4" ry="8" fill="#4169E1" />
+            <Ellipse cx="28" cy="48" rx="10" ry="18" fill="#2196F3" />
+            <Ellipse cx="26" cy="42" rx="6" ry="12" fill="#1976D2" />
+            <Path d="M 20 45 Q 18 50 20 55 Q 25 52 28 48" fill="#0D47A1" />
           </G>
           
           <G style={styles.rightWing}>
-            <Ellipse cx="70" cy="50" rx="8" ry="15" fill="#1E90FF" />
-            <Ellipse cx="72" cy="45" rx="4" ry="8" fill="#4169E1" />
+            <Ellipse cx="72" cy="48" rx="10" ry="18" fill="#2196F3" />
+            <Ellipse cx="74" cy="42" rx="6" ry="12" fill="#1976D2" />
+            <Path d="M 80 45 Q 82 50 80 55 Q 75 52 72 48" fill="#0D47A1" />
           </G>
           
-          {/* Feet */}
-          <Ellipse cx="45" cy="88" rx="3" ry="6" fill="#FF8C00" />
-          <Ellipse cx="55" cy="88" rx="3" ry="6" fill="#FF8C00" />
+          {/* Orange feet - more detailed */}
+          <Ellipse cx="44" cy="82" rx="4" ry="8" fill="#FF9800" />
+          <Ellipse cx="56" cy="82" rx="4" ry="8" fill="#FF9800" />
+          <Path d="M 40 88 L 38 92 M 42 88 L 40 92 M 44 88 L 42 92" stroke="#FF9800" strokeWidth="2" fill="none" />
+          <Path d="M 60 88 L 62 92 M 58 88 L 60 92 M 56 88 L 58 92" stroke="#FF9800" strokeWidth="2" fill="none" />
           
           {/* Special pose effects */}
           {pose === 'encouraging' && (
@@ -202,9 +209,9 @@ export default function ZanMascot({
           
           {pose === 'thinking' && (
             <>
-              <Circle cx="65" cy="20" r="2" fill="#87CEEB" opacity="0.7" />
-              <Circle cx="70" cy="15" r="3" fill="#87CEEB" opacity="0.5" />
-              <Circle cx="75" cy="10" r="4" fill="#87CEEB" opacity="0.3" />
+              <Circle cx="65" cy="18" r="2" fill="#87CEEB" opacity="0.7" />
+              <Circle cx="70" cy="13" r="3" fill="#87CEEB" opacity="0.5" />
+              <Circle cx="75" cy="8" r="4" fill="#87CEEB" opacity="0.3" />
             </>
           )}
         </Svg>
