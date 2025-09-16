@@ -72,7 +72,14 @@ export default function GuessScreen() {
       });
       
       setZanPose('happy');
-      setZanMessage({ text: 'Harika! Doğru bildin!', duration: 2000 });
+      const happyMessages = [
+        'Vay be! Sen bir dahisin!',
+        'İşte bu! Kelime ustası sensin!',
+        'Müthiş! Beynin ateş ediyor!',
+        'Süpersin! Beni bile geçtin!',
+        'Harikasın! Bu kelimeyi yedim!'
+      ];
+      setZanMessage({ text: happyMessages[Math.floor(Math.random() * happyMessages.length)], duration: 2000 });
       
       // Navigate after a delay, complete round just before navigation
       isNavigatingRef.current = true;
@@ -116,7 +123,14 @@ export default function GuessScreen() {
         });
         
         setZanPose('confused');
-        setZanMessage({ text: 'Üzülme! Bir dahaki sefere daha iyi olacak.', duration: 3000 });
+        const loseMessages = [
+          'Oops! Bu sefer olmadı ama sen yine de harikasın!',
+          'Hay aksi! Kelime çok zordu galiba...',
+          'Üzülme, ben de bilmiyordum zaten!',
+          'Bu kelime beni de kandırdı!',
+          'Merak etme, bir dahakine patlatırız!'
+        ];
+        setZanMessage({ text: loseMessages[Math.floor(Math.random() * loseMessages.length)], duration: 3000 });
         
         // Navigate after a delay, complete round just before navigation
         isNavigatingRef.current = true;
@@ -151,7 +165,14 @@ export default function GuessScreen() {
         });
         
         setZanPose('encouraging');
-        setZanMessage({ text: 'Hmm, tekrar dene! Sen yapabilirsin!', duration: 2500 });
+        const tryAgainMessages = [
+          'Yaklaştın! Biraz daha düşün!',
+          'Hmm, başka bir şey dene!',
+          'Neredeyse! Bir kez daha!',
+          'Ooo yakınsın, devam et!',
+          'Beynini biraz daha zorla!'
+        ];
+        setZanMessage({ text: tryAgainMessages[Math.floor(Math.random() * tryAgainMessages.length)], duration: 2500 });
       }
       
       setUserInput('');
@@ -165,7 +186,14 @@ export default function GuessScreen() {
     setHintText(hint);
     setShowHintModal(true);
     setZanPose('thinking');
-    setZanMessage({ text: 'İpucu mu istiyorsun? Düşünelim...', duration: 2000 });
+    const hintMessages = [
+      'İpucu ha? Tamam ama puanın düşecek!',
+      'Yardım mı lazım? Ben de merak ettim!',
+      'İpucu vereyim ama sır olsun!',
+      'Hmm, ipucu... Bakalım ne bulabilirim!',
+      'Tüyolarım var ama pahalıya patlar!'
+    ];
+    setZanMessage({ text: hintMessages[Math.floor(Math.random() * hintMessages.length)], duration: 2000 });
   };
 
   const confirmHint = () => {
