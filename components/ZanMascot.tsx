@@ -107,9 +107,9 @@ export default function ZanMascot({
   const renderZan = () => {
     const beakColor = pose === 'happy' ? '#FFC83A' : PALETTE.beak;
     const eyeScale = pose === 'thinking' ? 0.9 : 1;
-    const wingRotate = wingAnim.interpolate({
+    const wingRotateString = wingAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: ['0deg', '-12deg'],
+      outputRange: ['rotate(0 69 58)', 'rotate(-12 69 58)'],
     });
 
     return (
@@ -189,12 +189,9 @@ export default function ZanMascot({
           <Circle cx="58" cy="31.5" r={1.6} fill="#FFFFFF" opacity={0.95} />
 
           {/* SAĞ KANAT (mavi, animasyonlu döndürme) */}
-          {Platform.OS !== 'web' ? (
+          {Platform.OS !== 'web' && AnimatedG ? (
             <AnimatedG
-              style={[
-                styles.animatedWing,
-                { transform: [{ rotate: wingRotate }] }
-              ]}
+              transform={wingRotateString as any}
             >
               <Path
                 d="
@@ -325,6 +322,6 @@ const styles = StyleSheet.create({
   speechTailRight: { right: 20 },
   speechTailLeft: { left: 20 },
   animatedWing: {
-    transformOrigin: '69 58',
+    // transformOrigin is not supported in React Native
   },
 });
