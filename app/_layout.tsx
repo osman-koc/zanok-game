@@ -1,5 +1,5 @@
-import React from '@/lib/react-shim';
-import { useEffect } from 'react';
+import '@/lib/react-shim';
+import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
