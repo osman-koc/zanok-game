@@ -21,21 +21,27 @@ export default function ResultScreen() {
   const meaning = params.meaning as string;
   
   // Session mode - get the last completed round
-  // If currentRoundIndex > 0, the last completed round is at currentRoundIndex - 1
-  // If currentRoundIndex === 0, we might be looking at the first round that just completed
-  const lastCompletedIndex = session ? Math.max(0, session.currentRoundIndex - 1) : 0;
-  const currentRound = session?.rounds[lastCompletedIndex];
+  // When a round is completed, currentRoundIndex is incremented, so the last completed round is at currentRoundIndex - 1
+  const lastCompletedIndex = session ? session.currentRoundIndex - 1 : 0;
+  const actualRound = session?.rounds[lastCompletedIndex];
   
-  // If we can't find the round at lastCompletedIndex, try the current index (for edge cases)
-  const fallbackRound = session?.rounds[session.currentRoundIndex];
-  const actualRound = currentRound || fallbackRound;
+  // Debug logging
+  console.log('Result Screen Debug:', {
+    isSessionMode,
+    sessionExists: !!session,
+    currentRoundIndex: session?.currentRoundIndex,
+    lastCompletedIndex,
+    totalRounds: session?.rounds.length,
+    actualRound: !!actualRound,
+    totalScore: session?.totalScore
+  });
   
   const sessionWon = isSessionMode ? (actualRound?.score ?? 0) > 0 : won;
   const sessionScore = isSessionMode ? (actualRound?.score ?? 0) : score;
   const sessionWord = isSessionMode ? actualRound?.word.term : word;
   const sessionMeaning = isSessionMode ? actualRound?.word.meaning : meaning;
   const totalScore = session?.totalScore || 0;
-  const roundNumber = lastCompletedIndex + 1; // Round number is 1-based
+  const roundNumber = (lastCompletedIndex >= 0 ? lastCompletedIndex : 0) + 1; // Round number is 1-based
   
   useEffect(() => {
     if (sessionWon) {

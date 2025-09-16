@@ -41,11 +41,20 @@ export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word |
       : words;
   }
   
-  // Use a better random selection with timestamp seed
-  const seed = Date.now();
+  // Use a better random selection with multiple entropy sources
+  const seed = Date.now() + Math.random() * 1000000;
   const randomValue = ((seed * 9301 + 49297) % 233280) / 233280;
   const randomIndex = Math.floor(randomValue * availableWords.length);
   const selectedWord = availableWords[randomIndex];
+  
+  console.log('Word selection debug:', {
+    totalWords: words.length,
+    usedInSession: usedWordIds.length,
+    recentWords: recentWordIds.length,
+    availableAfterFilter: availableWords.length,
+    selectedWordId: selectedWord?.id,
+    selectedWordTerm: selectedWord?.term
+  });
   
   // Update recent words buffer
   if (selectedWord) {

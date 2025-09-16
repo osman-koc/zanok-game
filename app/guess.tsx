@@ -30,11 +30,22 @@ export default function GuessScreen() {
   const continueSession = params.continueSession === 'true';
   
   useEffect(() => {
+    console.log('Guess Screen useEffect:', {
+      continueSession,
+      isSessionMode,
+      hasCurrentRound: !!currentRound,
+      sessionExists: !!session,
+      currentRoundIndex: session?.currentRoundIndex,
+      totalRounds: session?.rounds.length
+    });
+    
     if (continueSession && !currentRound) {
       // Add a new round when continuing session
+      console.log('Adding new round for continue session');
       addRound();
     } else if (!isSessionMode && !currentRound) {
       // Start a single round for non-session mode
+      console.log('Starting single round');
       startSingleRound();
     }
   }, []);
