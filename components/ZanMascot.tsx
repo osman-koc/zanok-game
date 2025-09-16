@@ -1,12 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, StyleSheet } from 'react-native';
-import Svg, { Path, Circle, Ellipse, G } from 'react-native-svg';
+import Svg, {
+  Path,
+  Circle,
+  Ellipse,
+  G,
+  Defs,
+  LinearGradient,
+  Stop,
+} from 'react-native-svg';
 
 type ZanPose = 'happy' | 'thinking' | 'encouraging' | 'neutral' | 'confused';
-type ZanMessage = {
-  text: string;
-  duration?: number;
-};
+type ZanMessage = { text: string; duration?: number };
 
 interface ZanMascotProps {
   pose?: ZanPose;
@@ -16,204 +21,207 @@ interface ZanMascotProps {
   animate?: boolean;
 }
 
-export default function ZanMascot({ 
-  pose = 'neutral', 
-  message = null, 
+export type { ZanPose, ZanMessage };
+
+const PALETTE = {
+  green: '#37B24D',      // gövde/baş
+  greenShadow: '#2F9E44',
+  yellow: '#FFD43B',     // göğüs
+  beak: '#F4B400',       // gaga
+  beakInner: '#E65A2E',  // gaga içi
+  eyeWhite: '#FFF6E5',
+  eyeBlack: '#23303E',
+  redCrest: '#E74C3C',
+  wing: '#1E88E5',
+  wingDark: '#1565C0',
+  tail: '#0EA5A5',
+  feet: '#FF9727',
+};
+
+const SIZE = {
+  small: { mascot: 60, bubble: 120 },
+  medium: { mascot: 80, bubble: 160 },
+  large: { mascot: 100, bubble: 200 },
+} as const;
+
+const AnimatedG = Animated.createAnimatedComponent(G);
+
+export default function ZanMascot({
+  pose = 'neutral',
+  message = null,
   position = 'bottom-right',
   size = 'medium',
-  animate = true 
+  animate = true,
 }: ZanMascotProps) {
   const bounceAnim = useRef(new Animated.Value(0)).current;
   const wingAnim = useRef(new Animated.Value(0)).current;
   const bubbleAnim = useRef(new Animated.Value(0)).current;
   const bubbleScale = useRef(new Animated.Value(0)).current;
 
-  const sizeConfig = {
-    small: { mascot: 60, bubble: 120 },
-    medium: { mascot: 80, bubble: 160 },
-    large: { mascot: 100, bubble: 200 }
-  };
-
-  const currentSize = sizeConfig[size];
+  const currentSize = SIZE[size];
 
   useEffect(() => {
-    if (animate) {
-      // Continuous bounce animation
-      const bounceAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(bounceAnim, {
-            toValue: -5,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(bounceAnim, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-
-      // Wing flap animation
-      const wingAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(wingAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(wingAnim, {
-            toValue: 0,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-
-      bounceAnimation.start();
-      wingAnimation.start();
-
-      return () => {
-        bounceAnimation.stop();
-        wingAnimation.stop();
-      };
-    }
+    if (!animate) return;
+    const bounce = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, { toValue: -5, duration: 900, useNativeDriver: true }),
+        Animated.timing(bounceAnim, { toValue: 0, duration: 900, useNativeDriver: true }),
+      ])
+    );
+    const wings = Animated.loop(
+      Animated.sequence([
+        Animated.timing(wingAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.timing(wingAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+      ])
+    );
+    bounce.start(); wings.start();
+    return () => { bounce.stop(); wings.stop(); };
   }, [animate, bounceAnim, wingAnim]);
 
   useEffect(() => {
-    if (message) {
-      // Speech bubble animation
+    if (!message) { bubbleAnim.setValue(0); bubbleScale.setValue(0); return; }
+    Animated.parallel([
+      Animated.spring(bubbleScale, { toValue: 1, tension: 100, friction: 8, useNativeDriver: true }),
+      Animated.timing(bubbleAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+
+    const timer = setTimeout(() => {
       Animated.parallel([
-        Animated.spring(bubbleScale, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-        Animated.timing(bubbleAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
+        Animated.timing(bubbleAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
+        Animated.timing(bubbleScale, { toValue: 0, duration: 180, useNativeDriver: true }),
       ]).start();
+    }, message.duration || 3000);
 
-      // Auto hide after duration
-      const duration = message.duration || 3000;
-      const timer = setTimeout(() => {
-        Animated.parallel([
-          Animated.timing(bubbleAnim, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(bubbleScale, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ]).start();
-      }, duration);
-
-      return () => clearTimeout(timer);
-    } else {
-      bubbleAnim.setValue(0);
-      bubbleScale.setValue(0);
-    }
+    return () => clearTimeout(timer);
   }, [message, bubbleAnim, bubbleScale]);
 
   const getPositionStyle = () => {
-    const baseStyle = {
-      position: 'absolute' as const,
-      zIndex: 1000,
-    };
-
-    switch (position) {
-      case 'bottom-right':
-        return { ...baseStyle, bottom: 20, right: 20 };
-      case 'bottom-left':
-        return { ...baseStyle, bottom: 20, left: 20 };
-      case 'center':
-        return { ...baseStyle, bottom: '30%', alignSelf: 'center' };
-      default:
-        return { ...baseStyle, bottom: 20, right: 20 };
-    }
+    const base: any = { position: 'absolute', zIndex: 1000 };
+    if (position === 'bottom-right') return { ...base, bottom: 20, right: 20 };
+    if (position === 'bottom-left') return { ...base, bottom: 20, left: 20 };
+    return { ...base, bottom: '30%', alignSelf: 'center' };
   };
 
   const renderZan = () => {
-    const eyeScale = pose === 'thinking' ? 0.8 : 1;
-    const beakColor = pose === 'happy' ? '#FFD93B' : '#FFA500';
-    
+    const beakColor = pose === 'happy' ? '#FFC83A' : PALETTE.beak;
+    const eyeScale = pose === 'thinking' ? 0.9 : 1;
+    const wingRotate = wingAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '-12deg'],
+    });
+
     return (
-      <Animated.View 
+      <Animated.View
         style={[
           styles.mascotContainer,
-          { 
-            transform: [{ translateY: bounceAnim }],
-            width: currentSize.mascot,
-            height: currentSize.mascot,
-          }
+          { transform: [{ translateY: bounceAnim }], width: currentSize.mascot, height: currentSize.mascot },
         ]}
       >
+        {/* 100x100 viewbox, transparan arka plan */}
         <Svg width={currentSize.mascot} height={currentSize.mascot} viewBox="0 0 100 100">
-          {/* Main Body - Green oval */}
-          <Ellipse cx="50" cy="55" rx="22" ry="28" fill="#4CAF50" />
-          
-          {/* Yellow chest area */}
-          <Ellipse cx="50" cy="62" rx="16" ry="22" fill="#FFD93B" />
-          
-          {/* Head - Green circle */}
-          <Circle cx="50" cy="32" r="18" fill="#4CAF50" />
-          
-          {/* Orange beak - curved like in icon */}
-          <Path d="M 32 32 Q 22 32 25 38 Q 30 36 32 32" fill={beakColor} />
-          <Path d="M 25 38 Q 28 40 32 38" fill="#FF6B35" />
-          
-          {/* Large white eyes with black pupils */}
-          <Circle cx="42" cy="28" r="5" fill="#F5F5DC" />
-          <Circle cx="58" cy="28" r="5" fill="#F5F5DC" />
-          <Circle cx="42" cy="28" r={3 * eyeScale} fill="#2C3E50" />
-          <Circle cx={pose === 'thinking' ? "57" : "58"} cy="28" r={3 * eyeScale} fill="#2C3E50" />
-          
-          {/* Eye highlights */}
-          <Circle cx="43" cy="27" r="1.5" fill="white" />
-          <Circle cx={pose === 'thinking' ? "58" : "59"} cy="27" r="1.5" fill="white" />
-          
-          {/* Red crest feathers on top */}
-          <Path d="M 42 14 Q 45 8 48 14" fill="#FF5722" />
-          <Path d="M 48 14 Q 50 8 52 14" fill="#FF5722" />
-          <Path d="M 52 14 Q 55 8 58 14" fill="#FF5722" />
-          
-          {/* Blue wings - more detailed like in icon */}
-          <G style={styles.leftWing}>
-            <Ellipse cx="28" cy="48" rx="10" ry="18" fill="#2196F3" />
-            <Ellipse cx="26" cy="42" rx="6" ry="12" fill="#1976D2" />
-            <Path d="M 20 45 Q 18 50 20 55 Q 25 52 28 48" fill="#0D47A1" />
-          </G>
-          
-          <G style={styles.rightWing}>
-            <Ellipse cx="72" cy="48" rx="10" ry="18" fill="#2196F3" />
-            <Ellipse cx="74" cy="42" rx="6" ry="12" fill="#1976D2" />
-            <Path d="M 80 45 Q 82 50 80 55 Q 75 52 72 48" fill="#0D47A1" />
-          </G>
-          
-          {/* Orange feet - more detailed */}
-          <Ellipse cx="44" cy="82" rx="4" ry="8" fill="#FF9800" />
-          <Ellipse cx="56" cy="82" rx="4" ry="8" fill="#FF9800" />
-          <Path d="M 40 88 L 38 92 M 42 88 L 40 92 M 44 88 L 42 92" stroke="#FF9800" strokeWidth="2" fill="none" />
-          <Path d="M 60 88 L 62 92 M 58 88 L 60 92 M 56 88 L 58 92" stroke="#FF9800" strokeWidth="2" fill="none" />
-          
-          {/* Special pose effects */}
-          {pose === 'encouraging' && (
-            <Path d="M 75 25 L 80 20 L 85 25 L 80 30 Z" fill="#FFD93B" />
-          )}
-          
-          {pose === 'thinking' && (
-            <>
-              <Circle cx="65" cy="18" r="2" fill="#87CEEB" opacity="0.7" />
-              <Circle cx="70" cy="13" r="3" fill="#87CEEB" opacity="0.5" />
-              <Circle cx="75" cy="8" r="4" fill="#87CEEB" opacity="0.3" />
-            </>
-          )}
+          <Defs>
+            {/* hafif parlaklık için beak highlight gradient */}
+            <LinearGradient id="beakGloss" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.55" />
+              <Stop offset="0.6" stopColor="#FFFFFF" stopOpacity="0" />
+            </LinearGradient>
+          </Defs>
+
+          {/* GÖVDE */}
+          {/* ana gövde: sağa doğru oval, altta hafif gölge katmanı */}
+          <Ellipse cx="54" cy="60" rx="24" ry="29" fill={PALETTE.green} />
+          <Ellipse cx="54" cy="63" rx="22" ry="27" fill={PALETTE.greenShadow} opacity={0.18} />
+
+          {/* GÖĞÜS (sarı dalga/scallop) */}
+          <Path
+            d="
+              M 36 62
+              C 42 55, 66 55, 72 62
+              C 68 66, 62 69, 54 70
+              C 46 69, 40 66, 36 62 Z
+            "
+            fill={PALETTE.yellow}
+          />
+
+          {/* BAŞ */}
+          <Circle cx="52" cy="34" r="19" fill={PALETTE.green} />
+
+          {/* İBİK (iki parça) */}
+          <Path d="M 60 19 C 66 15, 70 17, 70 24 C 66 25, 63 23, 60 19 Z" fill={PALETTE.redCrest} />
+          <Path d="M 54 20 C 59 16, 63 17, 64 23 C 60 24, 57 23, 54 20 Z" fill={PALETTE.redCrest} />
+
+          {/* GAGA (büyük, parlak, sola bakıyor) */}
+          <Path
+            d="
+              M 28 36
+              C 30 28, 40 24, 48 27
+              C 45 34, 40 37, 33 38
+              C 31 38.5, 29.5 37.6, 28 36 Z
+            "
+            fill={beakColor}
+          />
+          {/* gaga içi */}
+          <Path
+            d="
+              M 33 38
+              C 37 37, 42 34, 45 29
+              C 44 36, 40 39, 34 41 Z
+            "
+            fill={PALETTE.beakInner}
+            opacity={0.85}
+          />
+          {/* beak gloss */}
+          <Path
+            d="
+              M 31 33
+              C 36 29, 43 28, 46 30
+              C 41 31.5, 37 33.5, 33 35 Z
+            "
+            fill="url(#beakGloss)"
+            opacity={0.7}
+          />
+
+          {/* TEK BÜYÜK GÖZ */}
+          <Circle cx="56" cy="33" r={8.5} fill={PALETTE.eyeWhite} />
+          <Circle cx="56" cy="33" r={4.6 * eyeScale} fill={PALETTE.eyeBlack} />
+          <Circle cx="58" cy="31.5" r={1.6} fill="#FFFFFF" opacity={0.95} />
+
+          {/* SAĞ KANAT (mavi, animasyonlu döndürme) */}
+          <AnimatedG
+            originX="69"
+            originY="58"
+            style={{ transform: [{ rotate: wingRotate }] }}
+          >
+            <Path
+              d="
+                M 58 52
+                C 66 46, 79 48, 82 58
+                C 80 66, 70 70, 60 64
+                C 58 61, 58 56, 58 52 Z
+              "
+              fill={PALETTE.wing}
+            />
+            <Path
+              d="
+                M 64 58
+                C 70 55, 76 57, 78 60
+                C 74 64, 68 64, 64 62 Z
+              "
+              fill={PALETTE.wingDark}
+              opacity={0.9}
+            />
+          </AnimatedG>
+
+          {/* KUYRUK (kısa, teal) */}
+          <Path
+            d="M 75 64 C 79 64, 82 66, 83 70 C 78 70, 74 68, 72 66 Z"
+            fill={PALETTE.tail}
+            opacity={0.95}
+          />
+
+          {/* AYAKLAR (küçük, turuncu) */}
+          <Ellipse cx="48" cy="86" rx="4" ry="2.7" fill={PALETTE.feet} />
+          <Ellipse cx="60" cy="86" rx="4" ry="2.7" fill={PALETTE.feet} />
         </Svg>
       </Animated.View>
     );
@@ -221,7 +229,6 @@ export default function ZanMascot({
 
   const renderSpeechBubble = () => {
     if (!message) return null;
-
     return (
       <Animated.View
         style={[
@@ -236,10 +243,12 @@ export default function ZanMascot({
         ]}
       >
         <Text style={styles.speechText}>{message.text}</Text>
-        <View style={[
-          styles.speechTail,
-          position.includes('right') ? styles.speechTailRight : styles.speechTailLeft
-        ]} />
+        <View
+          style={[
+            styles.speechTail,
+            position.includes('right') ? styles.speechTailRight : styles.speechTailLeft,
+          ]}
+        />
       </Animated.View>
     );
   };
@@ -253,10 +262,7 @@ export default function ZanMascot({
 }
 
 const styles = StyleSheet.create({
-  mascotContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  mascotContainer: { alignItems: 'center', justifyContent: 'center' },
   speechBubble: {
     position: 'absolute',
     backgroundColor: 'white',
@@ -290,18 +296,6 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderTopColor: 'white',
   },
-  speechTailRight: {
-    right: 20,
-  },
-  speechTailLeft: {
-    left: 20,
-  },
-  leftWing: {
-    transformOrigin: '30 50',
-  },
-  rightWing: {
-    transformOrigin: '70 50',
-  },
+  speechTailRight: { right: 20 },
+  speechTailLeft: { left: 20 },
 });
-
-export type { ZanPose, ZanMessage };
