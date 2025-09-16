@@ -74,21 +74,20 @@ export default function GuessScreen() {
       setZanPose('happy');
       setZanMessage({ text: 'Harika! Doğru bildin!', duration: 2000 });
       
-      // Complete the round immediately
-      if (isSessionMode) {
-        completeRound(score);
-      }
-      
-      // Navigate after a delay
+      // Navigate after a delay, complete round just before navigation
       isNavigatingRef.current = true;
       setTimeout(() => {
         if (isSessionMode) {
-          router.replace({
-            pathname: '/result',
-            params: {
-              sessionMode: 'true',
-            },
-          });
+          completeRound(score);
+          // Small delay to ensure state update
+          setTimeout(() => {
+            router.replace({
+              pathname: '/result',
+              params: {
+                sessionMode: 'true',
+              },
+            });
+          }, 100);
         } else {
           router.replace({
             pathname: '/result',
@@ -119,21 +118,20 @@ export default function GuessScreen() {
         setZanPose('confused');
         setZanMessage({ text: 'Üzülme! Bir dahaki sefere daha iyi olacak.', duration: 3000 });
         
-        // Complete the round immediately
-        if (isSessionMode) {
-          completeRound(0);
-        }
-        
-        // Navigate after a delay
+        // Navigate after a delay, complete round just before navigation
         isNavigatingRef.current = true;
         setTimeout(() => {
           if (isSessionMode) {
-            router.replace({
-              pathname: '/result',
-              params: {
-                sessionMode: 'true',
-              },
-            });
+            completeRound(0);
+            // Small delay to ensure state update
+            setTimeout(() => {
+              router.replace({
+                pathname: '/result',
+                params: {
+                  sessionMode: 'true',
+                },
+              });
+            }, 100);
           } else {
             router.replace({
               pathname: '/result',

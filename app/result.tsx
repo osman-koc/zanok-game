@@ -51,7 +51,7 @@ export default function ResultScreen() {
       <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="white" />
-          <Text style={styles.loadingText}>Yükleniyor...</Text>
+          <Text style={styles.loadingText}>Sonuç hazırlanıyor...</Text>
         </View>
       </LinearGradient>
     );
@@ -63,7 +63,7 @@ export default function ResultScreen() {
       <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="white" />
-          <Text style={styles.loadingText}>Yükleniyor...</Text>
+          <Text style={styles.loadingText}>Sonuç hazırlanıyor...</Text>
         </View>
       </LinearGradient>
     );
