@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, StyleSheet } from 'react-native';
+import { View, Text, Animated, StyleSheet, Platform } from 'react-native';
 import Svg, {
   Path,
   Circle,
@@ -44,7 +44,8 @@ const SIZE = {
   large: { mascot: 100, bubble: 200 },
 } as const;
 
-const AnimatedG = Animated.createAnimatedComponent(G);
+// Only create AnimatedG for native platforms to avoid web compatibility issues
+const AnimatedG = Platform.OS !== 'web' ? Animated.createAnimatedComponent(G) : G;
 
 export default function ZanMascot({
   pose = 'neutral',
@@ -187,30 +188,54 @@ export default function ZanMascot({
           <Circle cx="58" cy="31.5" r={1.6} fill="#FFFFFF" opacity={0.95} />
 
           {/* SAĞ KANAT (mavi, animasyonlu döndürme) */}
-          <AnimatedG
-            originX="69"
-            originY="58"
-            style={{ transform: [{ rotate: wingRotate }] }}
-          >
-            <Path
-              d="
-                M 58 52
-                C 66 46, 79 48, 82 58
-                C 80 66, 70 70, 60 64
-                C 58 61, 58 56, 58 52 Z
-              "
-              fill={PALETTE.wing}
-            />
-            <Path
-              d="
-                M 64 58
-                C 70 55, 76 57, 78 60
-                C 74 64, 68 64, 64 62 Z
-              "
-              fill={PALETTE.wingDark}
-              opacity={0.9}
-            />
-          </AnimatedG>
+          {Platform.OS !== 'web' ? (
+            <AnimatedG
+              style={[
+                styles.animatedWing,
+                { transform: [{ rotate: wingRotate }] }
+              ]}
+            >
+              <Path
+                d="
+                  M 58 52
+                  C 66 46, 79 48, 82 58
+                  C 80 66, 70 70, 60 64
+                  C 58 61, 58 56, 58 52 Z
+                "
+                fill={PALETTE.wing}
+              />
+              <Path
+                d="
+                  M 64 58
+                  C 70 55, 76 57, 78 60
+                  C 74 64, 68 64, 64 62 Z
+                "
+                fill={PALETTE.wingDark}
+                opacity={0.9}
+              />
+            </AnimatedG>
+          ) : (
+            <G>
+              <Path
+                d="
+                  M 58 52
+                  C 66 46, 79 48, 82 58
+                  C 80 66, 70 70, 60 64
+                  C 58 61, 58 56, 58 52 Z
+                "
+                fill={PALETTE.wing}
+              />
+              <Path
+                d="
+                  M 64 58
+                  C 70 55, 76 57, 78 60
+                  C 74 64, 68 64, 64 62 Z
+                "
+                fill={PALETTE.wingDark}
+                opacity={0.9}
+              />
+            </G>
+          )}
 
           {/* KUYRUK (kısa, teal) */}
           <Path
@@ -298,4 +323,7 @@ const styles = StyleSheet.create({
   },
   speechTailRight: { right: 20 },
   speechTailLeft: { left: 20 },
+  animatedWing: {
+    transformOrigin: '69 58',
+  },
 });
