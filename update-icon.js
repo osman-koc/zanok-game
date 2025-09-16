@@ -4,7 +4,7 @@
 const fs = require('fs');
 const https = require('https');
 
-const iconUrl = 'https://r2-pub.rork.com/generated-images/0a4efe91-da95-4a06-80fb-5e3baf127ec1.png';
+const iconUrl = 'https://r2-pub.rork.com/generated-images/18faf626-fe02-4b3d-9c0f-7ba5fe1ae1a9.png';
 
 const iconPaths = [
   './assets/images/icon.png',
