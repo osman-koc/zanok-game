@@ -15,7 +15,7 @@ import { useGameSession } from '../lib/gameSession';
 
 export default function GuessScreen() {
   const params = useLocalSearchParams();
-  const { currentRound, updateRound, completeRound, session, startSingleRound, addRound } = useGameSession();
+  const { currentRound, updateRound, completeRound, session, startSingleRound, addRound, endSession } = useGameSession();
   const [userInput, setUserInput] = useState('');
   const [gameEnded, setGameEnded] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
@@ -178,11 +178,16 @@ export default function GuessScreen() {
   };
 
   const handleBackToHome = () => {
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    
     if (isSessionMode && session) {
-      router.push('/result');
-    } else {
-      router.push('/');
+      // End the session and go back to home
+      endSession();
     }
+    
+    router.replace('/');
   };
 
   const dismissKeyboard = () => {
