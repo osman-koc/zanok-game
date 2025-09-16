@@ -58,7 +58,7 @@ export default function AddWordScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Türkçe Kelime</Text>
+            <Text style={styles.label}>Kelime</Text>
             <TextInput
               style={styles.input}
               value={turkishWord}
