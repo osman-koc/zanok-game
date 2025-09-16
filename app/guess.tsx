@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Lightbulb, ArrowLeft, X } from 'lucide-react-native';
 import Hangman from '../components/Hangman';
 import AnimatedFeedback from '../components/AnimatedFeedback';
+import ZanMascot from '../components/ZanMascot';
 import { strings, formatString } from '../lib/i18n';
 import { updateStats } from '../lib/storage';
 import { equalsMeaning } from '../lib/text';
@@ -20,6 +21,8 @@ export default function GuessScreen() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
   const [showHintModal, setShowHintModal] = useState(false);
   const [hintText, setHintText] = useState('');
+  const [zanMessage, setZanMessage] = useState<{ text: string; duration?: number } | null>(null);
+  const [zanPose, setZanPose] = useState<'happy' | 'thinking' | 'encouraging' | 'neutral' | 'confused'>('neutral');
   const isNavigatingRef = useRef(false);
   
   // Check if we're in session mode
@@ -68,6 +71,9 @@ export default function GuessScreen() {
         message: '✅ Doğru! Tebrikler!',
       });
       
+      setZanPose('happy');
+      setZanMessage({ text: 'Harika! Doğru bildin!', duration: 2000 });
+      
       // Complete the round immediately
       if (isSessionMode) {
         completeRound(score);
@@ -110,6 +116,9 @@ export default function GuessScreen() {
           message: formatString(strings.wrongAnswer, { answer: word.meaning }),
         });
         
+        setZanPose('confused');
+        setZanMessage({ text: 'Üzülme! Bir dahaki sefere daha iyi olacak.', duration: 3000 });
+        
         // Complete the round immediately
         if (isSessionMode) {
           completeRound(0);
@@ -142,6 +151,9 @@ export default function GuessScreen() {
           type: 'error',
           message: '❌ Yanlış! Tekrar dene.',
         });
+        
+        setZanPose('encouraging');
+        setZanMessage({ text: 'Hmm, tekrar dene! Sen yapabilirsin!', duration: 2500 });
       }
       
       setUserInput('');
@@ -154,6 +166,8 @@ export default function GuessScreen() {
     const hint = getHintText(word.meaning);
     setHintText(hint);
     setShowHintModal(true);
+    setZanPose('thinking');
+    setZanMessage({ text: 'İpucu mu istiyorsun? Düşünelim...', duration: 2000 });
   };
 
   const confirmHint = () => {
@@ -312,6 +326,13 @@ export default function GuessScreen() {
             </View>
           </View>
         </Modal>
+        
+        <ZanMascot 
+          pose={zanPose} 
+          message={zanMessage}
+          position="bottom-left"
+          size="small"
+        />
       </LinearGradient>
     </TouchableWithoutFeedback>
   );

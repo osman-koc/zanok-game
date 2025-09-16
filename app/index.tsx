@@ -6,17 +6,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BookOpen, User } from 'lucide-react-native';
 import SpinWheel from '@/components/SpinWheel';
 import Logo from '@/components/Logo';
+import ZanMascot from '@/components/ZanMascot';
 import { useGameSession } from '@/lib/gameSession';
 import { WheelSegment } from '../types';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [isSpinning, setIsSpinning] = useState(false);
+  const [zanMessage, setZanMessage] = useState<{ text: string; duration?: number } | null>(null);
   const { startNewSessionWithRound } = useGameSession();
 
   const handleSpin = () => {
     if (isSpinning) return;
     setIsSpinning(true);
+    setZanMessage({ text: 'Hadi bakalım, çark dönüyor!', duration: 2000 });
   };
 
   const handleSpinComplete = (segment: WheelSegment) => {
@@ -25,15 +28,20 @@ export default function HomeScreen() {
     const result = startNewSessionWithRound();
     if (!result) {
       console.log('Error: Could not load words');
+      setZanMessage({ text: 'Hmm, bir sorun var. Tekrar dene!', duration: 3000 });
       return;
     }
 
-    router.push({
-      pathname: '/guess',
-      params: {
-        sessionMode: 'true',
-      },
-    });
+    setZanMessage({ text: 'Harika! Hadi kelime öğrenelim!', duration: 2000 });
+    
+    setTimeout(() => {
+      router.push({
+        pathname: '/guess',
+        params: {
+          sessionMode: 'true',
+        },
+      });
+    }, 1500);
   };
 
   const handleQuickPlay = () => {
@@ -86,6 +94,13 @@ export default function HomeScreen() {
           <Text style={styles.quickPlayText}>Hızlı Oyun</Text>
         </TouchableOpacity>
       </View>
+      
+      <ZanMascot 
+        pose="encouraging" 
+        message={zanMessage}
+        position="bottom-right"
+        size="medium"
+      />
     </LinearGradient>
   );
 }

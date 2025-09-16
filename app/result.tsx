@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-
+import ZanMascot from '../components/ZanMascot';
 import { useGameSession } from '../lib/gameSession';
 
 export default function ResultScreen() {
   const params = useLocalSearchParams();
   const { session, isComplete, endSession } = useGameSession();
+  const [zanMessage, setZanMessage] = useState<{ text: string; duration?: number } | null>(null);
+  const [zanPose, setZanPose] = useState<'happy' | 'thinking' | 'encouraging' | 'neutral' | 'confused'>('neutral');
   
   // Check if we're in session mode
   const isSessionMode = params.sessionMode === 'true';
@@ -26,6 +28,22 @@ export default function ResultScreen() {
   const sessionMeaning = isSessionMode ? currentRound?.word.meaning : meaning;
   const totalScore = session?.totalScore || 0;
   const roundNumber = session?.currentRoundIndex || 1;
+  
+  useEffect(() => {
+    if (sessionWon) {
+      setZanPose('happy');
+      if (isSessionMode && !isComplete) {
+        setZanMessage({ text: 'Müthiş! Bir sonraki kelimeye hazır mısın?', duration: 4000 });
+      } else if (isSessionMode && isComplete) {
+        setZanMessage({ text: `Tebrikler! ${totalScore} puan topladın!`, duration: 5000 });
+      } else {
+        setZanMessage({ text: 'Harika! Başka kelimeler de öğrenelim!', duration: 4000 });
+      }
+    } else {
+      setZanPose('encouraging');
+      setZanMessage({ text: 'Sorun değil! Pratik yapmaya devam et!', duration: 4000 });
+    }
+  }, [sessionWon, isSessionMode, isComplete, totalScore]);
 
   // Show loading if we're in session mode but don't have the required data yet
   if (isSessionMode && (!session || !currentRound)) {
@@ -135,6 +153,13 @@ export default function ResultScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      
+      <ZanMascot 
+        pose={zanPose} 
+        message={zanMessage}
+        position="bottom-right"
+        size="medium"
+      />
     </LinearGradient>
   );
 }
