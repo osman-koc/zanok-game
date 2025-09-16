@@ -25,7 +25,7 @@ export default function Logo({ size = 'medium' }: LogoProps) {
 
   return (
     <Image
-      source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/l0dihm3bx7ajij5deddqc' }}
+      source={{ uri: 'https://r2-pub.rork.com/generated-images/375d22ba-100d-4b0a-8467-86c09d77222d.png' }}
       style={[styles.container, currentSize.container, styles.oval]}
       resizeMode="cover"
     />
