@@ -1,43 +1,41 @@
 import * as React from 'react';
 
-// React 19 compatibility for expo-router
-// The issue is that expo-router expects React.use to work in a specific way
-// but React 19's implementation might not be fully compatible yet
+// Simple React 19 compatibility shim for expo-router
+// This prevents crashes when expo-router tries to use React.use
 
 // Store the original use function if it exists
 const originalUse = (React as any).use;
 
-// Create a compatible use function for expo-router
+// Create a minimal compatible use function
 (React as any).use = function(resource: any) {
-  // Handle React Context specifically for expo-router
-  if (resource && typeof resource === 'object') {
-    // Check if it's a React Context
-    if (resource.$$typeof && resource._currentValue !== undefined) {
+  // Handle null/undefined
+  if (!resource) {
+    return null;
+  }
+  
+  // For React contexts, try to access current value
+  if (resource && typeof resource === 'object' && resource.$$typeof) {
+    if (resource._currentValue !== undefined) {
       return resource._currentValue;
     }
-    if (resource.$$typeof && resource._currentValue2 !== undefined) {
+    if (resource._currentValue2 !== undefined) {
       return resource._currentValue2;
-    }
-    // For expo-router's StoreContext, return null to prevent errors
-    if (!resource.$$typeof && resource === null) {
-      return null;
     }
   }
   
-  // For promises, use original behavior or throw
+  // For promises, use original implementation or throw
   if (resource && typeof resource.then === 'function') {
     if (originalUse) {
       return originalUse(resource);
     }
-    throw resource; // Suspense will catch this
+    throw resource;
   }
   
   // Use original implementation if available
   if (originalUse) {
     try {
       return originalUse(resource);
-    } catch (error) {
-      // Fallback for compatibility
+    } catch {
       return null;
     }
   }
