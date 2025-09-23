@@ -72,17 +72,37 @@ export const [GameSessionProvider, useGameSession] = createContextHook(() => {
   }, [words]);
 
   const addRound = useCallback(() => {
-    if (!session || words.length === 0) return null;
+    if (!session || words.length === 0) {
+      console.log('addRound: Cannot add round - no session or words', { hasSession: !!session, wordsCount: words.length });
+      return null;
+    }
     
     const usedWordIds = session.rounds.map(round => round.word.id);
+    console.log('addRound: Getting random word', {
+      sessionRounds: session.rounds.length,
+      currentRoundIndex: session.currentRoundIndex,
+      usedWordIds: usedWordIds,
+      totalWords: words.length
+    });
+    
     const word = getRandomWord(words, usedWordIds);
-    if (!word) return null;
+    if (!word) {
+      console.log('addRound: No word returned from getRandomWord');
+      return null;
+    }
+    
+    console.log('addRound: Selected word:', { id: word.id, term: word.term });
     
     const segment = spinWheel();
     const modifiers = createRoundModifiers(segment);
     
     const updatedSession = addRoundToSession(session, word, modifiers);
     setSession(updatedSession);
+    
+    console.log('addRound: Session updated', {
+      newRoundsCount: updatedSession.rounds.length,
+      currentRoundIndex: updatedSession.currentRoundIndex
+    });
     
     return { word, modifiers, segment };
   }, [session, words]);

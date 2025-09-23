@@ -18,6 +18,12 @@ const RECENT_WORDS_BUFFER = 8; // Avoid repeating last 8 words
 export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word | null {
   if (words.length === 0) return null;
   
+  console.log('getRandomWord called with:', {
+    totalWords: words.length,
+    usedWordIds: usedWordIds,
+    recentWordIds: recentWordIds
+  });
+  
   // Combine used words in session with recently used words
   const allUsedIds = [...new Set([...usedWordIds, ...recentWordIds])];
   
@@ -26,11 +32,13 @@ export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word |
   // Try to filter out used words if we have enough words left
   if (allUsedIds.length > 0 && words.length > allUsedIds.length) {
     availableWords = words.filter(word => !allUsedIds.includes(word.id));
+    console.log('Filtered out all used words, available:', availableWords.length);
   }
   
   // If no words available after filtering, use words not in current session
   if (availableWords.length === 0 && usedWordIds.length > 0) {
     availableWords = words.filter(word => !usedWordIds.includes(word.id));
+    console.log('Filtered out session words only, available:', availableWords.length);
   }
   
   // If still no words, reset and use all words except the very last one
@@ -39,21 +47,33 @@ export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word |
     availableWords = lastWordId 
       ? words.filter(word => word.id !== lastWordId)
       : words;
+    console.log('Using all words except last, available:', availableWords.length);
   }
   
-  // Use a better random selection with multiple entropy sources
-  const seed = Date.now() + Math.random() * 1000000;
-  const randomValue = ((seed * 9301 + 49297) % 233280) / 233280;
-  const randomIndex = Math.floor(randomValue * availableWords.length);
+  // Ensure we have at least one word
+  if (availableWords.length === 0) {
+    availableWords = words;
+    console.log('Emergency fallback: using all words');
+  }
+  
+  // Use multiple random sources for better randomness
+  const timestamp = Date.now();
+  const random1 = Math.random();
+  const random2 = Math.random();
+  const combinedSeed = (timestamp + random1 * 1000000 + random2 * 1000000) % 1000000;
+  const randomIndex = Math.floor((combinedSeed % availableWords.length));
   const selectedWord = availableWords[randomIndex];
   
-  console.log('Word selection debug:', {
+  console.log('Word selection result:', {
     totalWords: words.length,
     usedInSession: usedWordIds.length,
     recentWords: recentWordIds.length,
     availableAfterFilter: availableWords.length,
+    randomIndex: randomIndex,
     selectedWordId: selectedWord?.id,
-    selectedWordTerm: selectedWord?.term
+    selectedWordTerm: selectedWord?.term,
+    timestamp: timestamp,
+    combinedSeed: combinedSeed
   });
   
   // Update recent words buffer
@@ -62,6 +82,7 @@ export function getRandomWord(words: Word[], usedWordIds: string[] = []): Word |
     if (recentWordIds.length > RECENT_WORDS_BUFFER) {
       recentWordIds.shift();
     }
+    console.log('Updated recent words:', recentWordIds);
   }
   
   return selectedWord;

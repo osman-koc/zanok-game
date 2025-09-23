@@ -36,19 +36,33 @@ export default function GuessScreen() {
       hasCurrentRound: !!currentRound,
       sessionExists: !!session,
       currentRoundIndex: session?.currentRoundIndex,
-      totalRounds: session?.rounds.length
+      totalRounds: session?.rounds.length,
+      currentRoundWord: currentRound?.word?.term,
+      isSessionComplete: session ? session.currentRoundIndex >= session.rounds.length : false
     });
     
-    if (continueSession && !currentRound) {
-      // Add a new round when continuing session
-      console.log('Adding new round for continue session');
-      addRound();
+    if (continueSession && isSessionMode && session) {
+      // Check if we need to add a new round for session continuation
+      const needsNewRound = session.currentRoundIndex >= session.rounds.length;
+      console.log('Continue session - needs new round:', needsNewRound);
+      
+      if (needsNewRound) {
+        console.log('Adding new round for continue session');
+        const result = addRound();
+        console.log('addRound result:', result);
+      }
     } else if (!isSessionMode && !currentRound) {
       // Start a single round for non-session mode
       console.log('Starting single round');
-      startSingleRound();
+      const result = startSingleRound();
+      console.log('startSingleRound result:', result);
+    } else if (currentRound) {
+      console.log('Current round already exists:', {
+        wordId: currentRound.word.id,
+        wordTerm: currentRound.word.term
+      });
     }
-  }, []);
+  }, [continueSession, isSessionMode, session, currentRound, addRound, startSingleRound]);
   
 
   
